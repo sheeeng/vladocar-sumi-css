@@ -37,10 +37,10 @@ A minimalist, classless-first CSS framework. Write plain, semantic HTML and it l
 <link rel="stylesheet" href="sumi.min.css">
 ```
 
-**CDN.** Load it from this repository through jsDelivr. Replace `USERNAME` with the GitHub account that hosts the repo:
+**CDN.** Load it from this repository through jsDelivr. 
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/USERNAME/sumi.css@1.0.0/sumi.min.css">
+<link rel="stylesheet" href="[https://cdn.jsdelivr.net/gh/USERNAME/sumi.css@1.0.0/sumi.min.css](https://cdn.jsdelivr.net/gh/vladocar/Sumi.css/sumi.min.css)">
 ```
 
 Use `sumi.css` (unminified) while you develop. Its comments explain every section.
