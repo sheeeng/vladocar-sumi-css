@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sumi.css Tutorial</title>
+<meta name="description" content="Build your first page with Sumi.css, step by step.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@700;800&display=swap">
+<link rel="stylesheet" href="sumi.min.css">
+<style>
+/* Tutorial page. Layout: sticky step index on the left, one reading column with code + live result pairs. Colors come from Sumi tokens plus four syntax tokens. */
+:root {
+  --s-gutter: 0px;
+  --d-display: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+  --t-name: #b4235a;
+  --t-attr: #8a5a00;
+  --t-string: #1a7f4b;
+  --t-comment: #6e7781;
+  --t-keyword: #2f5bea;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --t-name: #ff8fb1; --t-attr: #e3b45c; --t-string: #6fd3a0; --t-comment: #8b949e; --t-keyword: #8fa8ff; }
+}
+:root[data-theme="dark"] { --t-name: #ff8fb1; --t-attr: #e3b45c; --t-string: #6fd3a0; --t-comment: #8b949e; --t-keyword: #8fa8ff; }
+
+body {
+  background: var(--s-bg);
+  color: var(--s-text);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body > header { border-bottom: 1px solid var(--s-border); }
+.brand { font-family: var(--d-display); font-size: 1.35rem; font-weight: 800; letter-spacing: -.01em; }
+.brand span { color: var(--s-muted); font-family: var(--s-font-sans); font-size: .95rem; font-weight: 500; }
+.theme-switch { margin: 0; }
+.theme-switch button { padding: .3rem .65rem; font-size: .8rem; font-weight: 500; }
+.theme-switch .outline[aria-pressed="true"], .theme-switch .outline[aria-pressed="true"]:hover { background: var(--s-btn); color: var(--s-btn-on); border-color: var(--s-btn); }
+
+/* intro */
+.intro-block { padding-block: 3rem 2rem; max-width: 46rem; }
+.intro-block h1 { font-family: var(--d-display); font-weight: 800; letter-spacing: -.03em; }
+.meta-line { display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; margin: 0; padding: 0; list-style: none; font-family: var(--s-font-mono); font-size: .8rem; color: var(--s-muted); }
+.meta-line li { margin: 0; }
+.meta-line b { color: var(--s-text); font-weight: 600; }
+
+/* layout */
+.tut { display: grid; gap: 3rem; padding-bottom: 2rem; }
+.tut > * { min-width: 0; }
+.tut aside { display: none; }
+@media (min-width: 64rem) {
+  .tut { grid-template-columns: 13rem minmax(0, 1fr); }
+  .tut aside { display: block; }
+  .tut aside nav { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 1.5rem); }
+}
+.tut aside h6 { margin: 0 0 .5rem .75rem; }
+.tut aside a { font-size: .875rem; }
+.tut aside a .n { display: inline-block; width: 1.4rem; color: var(--s-muted); font-variant-numeric: tabular-nums; }
+.content { max-width: 48rem; }
+.content > section { margin-bottom: 4.5rem; scroll-margin-top: 1.5rem; }
+.content > section > p, .content > section > ul, .content > section > ol { max-width: 42rem; }
+
+.step { display: flex; align-items: baseline; gap: .75rem; }
+.step .n {
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--s-contrast);
+  color: var(--s-on-contrast);
+  font-family: var(--s-font-mono);
+  font-size: .9rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  transform: translateY(-.2em);
+}
+
+/* code blocks */
+.codeblock { position: relative; margin: 0 0 var(--s-flow); }
+.codeblock pre { margin: 0; font-size: .8125rem; padding-right: 4.5rem; max-height: 32rem; }
+.codeblock .lang {
+  position: absolute; top: .55rem; right: 4.2rem;
+  font-family: var(--s-font-mono); font-size: .7rem; color: var(--s-muted); text-transform: uppercase; letter-spacing: .06em;
+}
+.codeblock button.copy { position: absolute; top: .4rem; right: .4rem; padding: .2rem .55rem; font-size: .75rem; font-weight: 500; }
+.codeblock.pair pre { border-radius: var(--s-radius) var(--s-radius) 0 0; }
+.codeblock.pair { margin-bottom: 0; }
+.example {
+  position: relative;
+  margin: 0 0 var(--s-flow);
+  padding: 2.25rem 1.5rem 1.5rem;
+  border: 1px solid var(--s-border);
+  border-top: 0;
+  border-radius: 0 0 var(--s-radius) var(--s-radius);
+  background: var(--s-bg);
+}
+.example::before {
+  content: "Result";
+  position: absolute; top: .6rem; left: 1.5rem;
+  font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--s-muted);
+}
+.example > :last-child { margin-bottom: 0; }
+.example.flush { padding-inline: 0; padding-bottom: 0; overflow: hidden; }
+.example.flush::before { left: 1.5rem; }
+
+/* syntax colors (highlight.js class names) */
+.hljs-tag, .hljs-punctuation { color: var(--s-muted); }
+.hljs-name, .hljs-selector-tag, .hljs-selector-class, .hljs-selector-id, .hljs-selector-pseudo, .hljs-selector-attr { color: var(--t-name); }
+.hljs-attr, .hljs-attribute, .hljs-variable, .hljs-property { color: var(--t-attr); }
+.hljs-string, .hljs-number, .hljs-literal { color: var(--t-string); }
+.hljs-comment { color: var(--t-comment); font-style: italic; }
+.hljs-keyword, .hljs-built_in, .hljs-title, .hljs-meta, .hljs-doctag { color: var(--t-keyword); }
+
+.note { font-size: .925rem; }
+.kv td:first-child { white-space: nowrap; }
+.finish { padding: 2rem; border-radius: calc(var(--s-radius) * 1.5); background: var(--s-surface); border: 1px solid var(--s-border); }
+.finish > :last-child { margin-bottom: 0; }
+
+/* mini site used in the final preview */
+.mini > header, .mini > main, .mini > footer { padding-inline: 1.5rem; }
+.mini > header { padding-block: 1rem; border-bottom: 1px solid var(--s-border); }
+.mini > main { padding-block: 2rem 1rem; }
+.mini > footer { padding-block: 1.25rem; border-top: 1px solid var(--s-border); color: var(--s-muted); font-size: .875rem; }
+.chrome { display: flex; gap: .4rem; padding: .7rem 1rem; border-bottom: 1px solid var(--s-border); background: var(--s-surface); margin-top: -.75rem; }
+.chrome i { width: .65rem; height: .65rem; border-radius: 50%; background: var(--s-border-strong); }
+</style>
+
+</head>
+<body>
+<header id="top">
+  <nav>
+    <ul>
+      <li><a href="#top" class="brand">Sumi <span>.css</span></a></li>
+    </ul>
+    <ul>
+      <li><a href="docs.html">Components</a></li>
+      <li><a href="#top" aria-current="page">Tutorial</a></li>
+      <li><a href="#cheatsheet">Cheat sheet</a></li>
+      <li>
+        <div role="group" aria-label="Color theme" class="theme-switch">
+          <button type="button" class="secondary outline small" data-theme-set="auto" aria-pressed="true">Auto</button>
+          <button type="button" class="secondary outline small" data-theme-set="light" aria-pressed="false">Light</button>
+          <button type="button" class="secondary outline small" data-theme-set="dark" aria-pressed="false">Dark</button>
+        </div>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <div class="intro-block">
+    <hgroup>
+      <h6>Tutorial</h6>
+      <h1>Build your first page with Sumi</h1>
+    </hgroup>
+    <p class="lead">In ten short steps you will build a one-page site for a calligraphy studio: navigation, a hero, course cards, a booking form, an FAQ and a dark mode. Most of it is plain HTML. Sumi does the styling.</p>
+    <ul class="meta-line">
+      <li><b>~20 min</b> to finish</li>
+      <li><b>You need</b> basic HTML</li>
+      <li><b>Works in</b> any modern browser</li>
+    </ul>
+  </div>
+
+  <div class="tut">
+    <aside>
+      <nav aria-label="Tutorial steps">
+        <h6>Steps</h6>
+        <ul>
+          <li><a href="#install"><span class="n">1</span>Add Sumi</a></li>
+          <li><a href="#structure"><span class="n">2</span>Page structure</a></li>
+          <li><a href="#navigation"><span class="n">3</span>Navigation</a></li>
+          <li><a href="#content"><span class="n">4</span>Text content</a></li>
+          <li><a href="#grid"><span class="n">5</span>Grid layout</a></li>
+          <li><a href="#cards"><span class="n">6</span>Cards</a></li>
+          <li><a href="#forms"><span class="n">7</span>Forms</a></li>
+          <li><a href="#interactive"><span class="n">8</span>Interactive parts</a></li>
+          <li><a href="#theming"><span class="n">9</span>Theming</a></li>
+          <li><a href="#overrides"><span class="n">10</span>Your own CSS</a></li>
+          <li><a href="#finished"><span class="n">✓</span>Finished page</a></li>
+          <li><a href="#cheatsheet"><span class="n">#</span>Cheat sheet</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="content">
+
+      <!-- 1 -->
+      <section id="install">
+        <h2 class="step"><span class="n">1</span>Add Sumi to a page</h2>
+        <p>Sumi is a single CSS file with no JavaScript and no build step. Download <code>sumi.min.css</code>, put it next to your HTML file, and link it in the <code>&lt;head&gt;</code>.</p>
+        <p>Create a file called <code>index.html</code> with this starter:</p>
+<script type="text/plain" data-snippet="html"><!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inkwell Studio</title>
+  <link rel="stylesheet" href="sumi.min.css">
+</head>
+<body>
+  <main>
+    <h1>Hello, ink.</h1>
+    <p>If this text looks clean and centered, Sumi is working.</p>
+  </main>
+</body>
+</html></script>
+        <p>Open the file in your browser. You should see a centered page with a bold heading, comfortable line spacing and the right colors for your system's light or dark mode.</p>
+        <div class="callout"><p><strong>Two lines matter.</strong> The <code>viewport</code> meta tag makes the layout work on phones. The <code>lang</code> attribute lets the browser hyphenate long-form text correctly, so set it to your page's language.</p></div>
+        <p class="note muted">Use <code>sumi.css</code> instead of the minified file while you learn. It has comments that explain every section.</p>
+      </section>
+
+      <!-- 2 -->
+      <section id="structure">
+        <h2 class="step"><span class="n">2</span>Lay out the page</h2>
+        <p>Sumi centers three elements automatically when they are direct children of <code>&lt;body&gt;</code>: <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code> and <code>&lt;footer&gt;</code>. They get a maximum width of 72rem, side padding that adapts to the screen, and sensible vertical spacing. You don't add any classes.</p>
+<script type="text/plain" data-snippet="html"><body>
+  <header>
+    <!-- logo and navigation: step 3 -->
+  </header>
+
+  <main>
+    <!-- your content -->
+  </main>
+
+  <footer>
+    <p>© 2026 Inkwell Studio</p>
+  </footer>
+</body></script>
+        <p>Three classes cover the other layout cases:</p>
+        <div class="overflow-auto">
+          <table class="kv">
+            <thead><tr><th>Class</th><th>Use it when</th></tr></thead>
+            <tbody>
+              <tr><td><code>.container</code></td><td>You want the same centered width on another element, such as a <code>&lt;div&gt;</code> or a <code>&lt;section&gt;</code>.</td></tr>
+              <tr><td><code>.container-fluid</code></td><td>You want full width with side padding only.</td></tr>
+              <tr><td><code>.narrow</code></td><td>You want a reading column of 44rem, for a blog post or a sign-in form.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 3 -->
+      <section id="navigation">
+        <h2 class="step"><span class="n">3</span>Add navigation</h2>
+        <p>A <code>&lt;nav&gt;</code> with two lists becomes a navigation bar: the first list sits on the left, the second on the right. Mark the current page with <code>aria-current="page"</code>. Sumi highlights it, and screen readers announce it.</p>
+        <div class="example">
+          <nav>
+            <ul>
+              <li><strong>Inkwell Studio</strong></li>
+            </ul>
+            <ul>
+              <li><a href="#navigation" aria-current="page">Courses</a></li>
+              <li><a href="#navigation">Teachers</a></li>
+              <li><a href="#navigation">Visit</a></li>
+              <li><a href="#forms" role="button" class="small">Book a seat</a></li>
+            </ul>
+          </nav>
+        </div>
+        <p>A link with <code>role="button"</code> looks like a button but still navigates. Use it for calls to action that go to another page or section.</p>
+        <p>For a breadcrumb trail, label the nav <code>breadcrumb</code>. Sumi adds the separators.</p>
+        <div class="example">
+          <nav aria-label="breadcrumb">
+            <ul>
+              <li><a href="#navigation">Home</a></li>
+              <li><a href="#navigation">Courses</a></li>
+              <li>Beginner brushwork</li>
+            </ul>
+          </nav>
+        </div>
+      </section>
+
+      <!-- 4 -->
+      <section id="content">
+        <h2 class="step"><span class="n">4</span>Write the content</h2>
+        <p>Headings, paragraphs, lists, quotes and code are styled from the element alone. Headings follow a fluid scale, so an <code>&lt;h1&gt;</code> is about 33px on a phone and 45px on a wide screen with no media queries on your side.</p>
+        <p>Three patterns make a hero section look finished:</p>
+        <ul>
+          <li><strong><code>&lt;hgroup&gt;</code></strong> groups a heading with an eyebrow (<code>&lt;h6&gt;</code>) above it and a subtitle (<code>&lt;p&gt;</code>) below it.</li>
+          <li><strong><code>.lead</code></strong> makes an intro paragraph larger.</li>
+          <li><strong><code>.display</code></strong> makes a headline larger still, for a landing page.</li>
+        </ul>
+        <div class="example">
+          <hgroup>
+            <h6>Calligraphy workshops</h6>
+            <h1>Learn to write with a brush</h1>
+          </hgroup>
+          <p class="lead">Small evening classes for complete beginners. Ink, brushes and paper are provided.</p>
+          <div class="row">
+            <a href="#cards" role="button">See courses</a>
+            <a href="#interactive" role="button" class="secondary outline">Read the FAQ</a>
+          </div>
+        </div>
+
+        <h3>Long-form text</h3>
+        <p>For an article or a blog post, wrap the text in <code>.prose</code>. It limits lines to about 68 characters, increases the line spacing slightly and turns on hyphenation. Add <code>.serif</code> to switch to a serif typeface, which many readers find calmer for long texts.</p>
+        <div class="example">
+          <article class="prose serif">
+            <h3>Why we grind our own ink</h3>
+            <p>Bottled ink is convenient, but grinding a stick against the stone is part of the lesson. It takes about five minutes, and it slows you down before the first stroke.</p>
+            <blockquote>
+              <p>One stroke, one breath. You cannot go back over a line.</p>
+              <footer>Workshop rule no. 1</footer>
+            </blockquote>
+          </article>
+        </div>
+        <p class="note muted">An <code>&lt;article&gt;</code> normally becomes a card (step 6). With <code>.prose</code> it stays plain text, because a long article should not sit in a box.</p>
+      </section>
+
+      <!-- 5 -->
+      <section id="grid">
+        <h2 class="step"><span class="n">5</span>Arrange content in a grid</h2>
+        <p><code>.grid</code> places its children in as many columns as fit, each at least 14rem wide. On a phone they stack into one column. You don't set any breakpoints.</p>
+        <div class="example">
+          <div class="grid">
+            <div><h5>Small groups</h5><p class="muted">Eight students per class, so the teacher sees every stroke.</p></div>
+            <div><h5>All materials</h5><p class="muted">Brushes, inksticks, stones and paper are ready on your desk.</p></div>
+            <div><h5>Take it home</h5><p class="muted">Every student leaves with a finished, signed piece.</p></div>
+          </div>
+        </div>
+        <p>When you need exact columns, add <code>.cols-2</code>, <code>.cols-3</code>, <code>.cols-4</code>, <code>.cols-6</code> or <code>.cols-12</code>. These apply from 48rem (768px) upwards; below that the grid is a single column. In a 12-column grid, children can take <code>.span-2</code> to <code>.span-9</code>, or <code>.span-full</code> for a whole row.</p>
+<script type="text/plain" data-snippet="html"><div class="grid cols-12">
+  <div class="span-8">Main content</div>
+  <div class="span-4">Sidebar</div>
+</div>
+
+<!-- change the minimum column width for one grid -->
+<div class="grid" style="--s-grid-min: 10rem">…</div></script>
+        <p>For a single row of items, use <code>.row</code> (a wrapping flex row with a gap). Add <code>.spread</code> to push items to both ends. <code>.stack</code> is the vertical version.</p>
+      </section>
+
+      <!-- 6 -->
+      <section id="cards">
+        <h2 class="step"><span class="n">6</span>Show options in cards</h2>
+        <p>Every <code>&lt;article&gt;</code> is a card. If the article starts with a <code>&lt;header&gt;</code> or ends with a <code>&lt;footer&gt;</code>, those become shaded bands across its full width. Put cards in a grid and they line up.</p>
+        <div class="example">
+          <div class="grid cols-3">
+            <article>
+              <header><strong>Taster evening</strong></header>
+              <p>One two-hour session. Try the brush, the ink and the basic strokes.</p>
+              <footer><a href="#forms" role="button" class="secondary outline full">€35</a></footer>
+            </article>
+            <article>
+              <header><strong>Six-week course</strong></header>
+              <p>Weekly classes from first strokes to a finished hanging scroll.</p>
+              <footer><a href="#forms" role="button" class="full">€180</a></footer>
+            </article>
+            <article>
+              <header><strong>Private lesson</strong></header>
+              <p>One hour with a teacher, at a time that suits you.</p>
+              <footer><a href="#forms" role="button" class="secondary outline full">€60</a></footer>
+            </article>
+          </div>
+        </div>
+        <p><code>.full</code> stretches a button across its container. Buttons come in <code>.secondary</code> and <code>.contrast</code> colors, an <code>.outline</code> style, and <code>.small</code> and <code>.large</code> sizes. You can combine them, as in <code>class="secondary outline small"</code>.</p>
+      </section>
+
+      <!-- 7 -->
+      <section id="forms">
+        <h2 class="step"><span class="n">7</span>Build a booking form</h2>
+        <p>Form fields need no classes. Wrap each field in its <code>&lt;label&gt;</code> and it gets full width, padding and a focus ring. A <code>&lt;small&gt;</code> placed right after a field becomes helper text.</p>
+        <div class="example">
+          <form id="booking" novalidate>
+            <div class="grid">
+              <label>Name
+                <input name="name" autocomplete="name" required>
+              </label>
+              <label>Email
+                <input type="email" name="email" autocomplete="email" required aria-describedby="email-help">
+                <small id="email-help">We send the confirmation here.</small>
+              </label>
+            </div>
+            <label>Course
+              <select name="course">
+                <option>Taster evening</option>
+                <option>Six-week course</option>
+                <option>Private lesson</option>
+              </select>
+            </label>
+            <fieldset>
+              <legend>Experience</legend>
+              <label><input type="radio" name="level" value="none" checked> I have never used a brush</label>
+              <label><input type="radio" name="level" value="some"> I have tried it a few times</label>
+            </fieldset>
+            <label><input type="checkbox" role="switch" name="news"> Send me news about new courses</label>
+            <br>
+            <button type="submit">Book my seat</button>
+          </form>
+        </div>
+        <p>Try submitting the empty form. Fields turn red because a small script sets <code>aria-invalid="true"</code> on them. Sumi styles that attribute, and screen readers announce it too. Valid fields get <code>aria-invalid="false"</code> and turn green.</p>
+<script type="text/plain" data-snippet="javascript">const form = document.querySelector('#booking');
+
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
+  for (const field of form.querySelectorAll('input[required]')) {
+    field.setAttribute('aria-invalid', String(!field.checkValidity()));
+  }
+  if (form.checkValidity()) {
+    // send the booking here
+  }
+});</script>
+        <p>Two more patterns are worth knowing:</p>
+        <ul>
+          <li><code>&lt;input type="checkbox" role="switch"&gt;</code> draws a toggle switch instead of a checkbox.</li>
+          <li><code>&lt;div role="group"&gt;</code> joins an input and a button into one control, like a search bar.</li>
+        </ul>
+        <div class="example">
+          <div role="group">
+            <input type="search" name="q" placeholder="Search courses" aria-label="Search courses">
+            <button type="button">Search</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 -->
+      <section id="interactive">
+        <h2 class="step"><span class="n">8</span>Add interactive parts</h2>
+        <p>Sumi styles the browser's own interactive elements, so most of these work with no JavaScript.</p>
+
+        <h3>FAQ accordion</h3>
+        <p>Each <code>&lt;details&gt;</code> opens and closes on click. Add <code>open</code> to start one expanded.</p>
+        <div class="example">
+          <details open>
+            <summary>Do I need any experience?</summary>
+            <p>No. The taster evening and the six-week course both start from the very first stroke.</p>
+          </details>
+          <details>
+            <summary>What should I wear?</summary>
+            <p>Something you don't mind getting ink on. Sumi ink does not wash out of cotton.</p>
+          </details>
+        </div>
+
+        <h3>Dropdown menu</h3>
+        <p>Add <code>class="dropdown"</code> to a <code>&lt;details&gt;</code> and put a list inside. Add <code>.right</code> as well to align the menu to the right edge.</p>
+        <div class="example">
+          <details class="dropdown">
+            <summary>Choose a location</summary>
+            <ul>
+              <li><a href="#interactive">Old Town studio</a></li>
+              <li><a href="#interactive">Riverside studio</a></li>
+              <li><a href="#interactive">Online class</a></li>
+            </ul>
+          </details>
+        </div>
+
+        <h3>Modal dialog</h3>
+        <p>Put an <code>&lt;article&gt;</code> inside a <code>&lt;dialog&gt;</code>. Opening a modal needs one line of JavaScript, <code>dialog.showModal()</code>. Closing does not: a button inside <code>&lt;form method="dialog"&gt;</code> closes it, and so does the <kbd>Esc</kbd> key.</p>
+        <div class="example">
+          <button type="button" class="secondary" data-open="cancel-dialog">Cancel a booking</button>
+          <dialog id="cancel-dialog">
+            <article>
+              <header><h4>Cancel your booking?</h4></header>
+              <p>Your seat will be offered to the next person on the waiting list.</p>
+              <footer>
+                <form method="dialog" class="row">
+                  <button class="secondary outline">Keep booking</button>
+                  <button class="contrast">Cancel booking</button>
+                </form>
+              </footer>
+            </article>
+          </dialog>
+        </div>
+<script type="text/plain" data-snippet="javascript">document.querySelector('[data-open="cancel-dialog"]')
+  .addEventListener('click', () => {
+    document.querySelector('#cancel-dialog').showModal();
+  });</script>
+
+        <h3>Tooltips, loading and messages</h3>
+        <p>Three attributes and one class cover the remaining feedback you'll need.</p>
+        <div class="example">
+          <div class="row">
+            <button type="button" class="secondary outline" data-tooltip="Brushes are cleaned after every class">Hover for a tooltip</button>
+            <button type="button" aria-busy="true">Saving</button>
+          </div>
+          <br>
+          <div class="callout success">Booking confirmed. See you on Thursday at 19:00.</div>
+          <div class="callout warning">Only two seats left for this date.</div>
+        </div>
+        <ul>
+          <li><code>data-tooltip="…"</code> shows a tooltip on hover and keyboard focus. Add <code>data-placement="bottom"</code> to show it below.</li>
+          <li><code>aria-busy="true"</code> adds a spinner to any element. Remove the attribute when loading finishes.</li>
+          <li><code>.callout</code> is a message box. Add <code>.success</code>, <code>.warning</code> or <code>.danger</code> for the color.</li>
+        </ul>
+      </section>
+
+      <!-- 9 -->
+      <section id="theming">
+        <h2 class="step"><span class="n">9</span>Make it yours</h2>
+        <p>Every color, font, size and radius in Sumi is a CSS custom property that starts with <code>--s-</code>. To rebrand the whole site, put your own values in a stylesheet that loads <em>after</em> Sumi:</p>
+<script type="text/plain" data-snippet="css">/* my-theme.css */
+:root {
+  --s-primary: #0f766e;      /* teal buttons and links */
+  --s-radius: .25rem;        /* sharper corners */
+  --s-font-body: "Inter", system-ui, sans-serif;
+  --s-font-heading: "Fraunces", Georgia, serif;
+  --s-container: 64rem;      /* narrower page */
+}</script>
+        <p>Custom properties also work on a single element. These buttons use the same classes as before. Only the parent's style attribute changes them:</p>
+        <div class="example">
+          <div class="row" style="--s-primary: #b4235a; --s-radius: 999px">
+            <button type="button">Book now</button>
+            <button type="button" class="outline">Gift card</button>
+          </div>
+        </div>
+
+        <h3>Fonts</h3>
+        <p>Sumi uses each system's own interface font by default, so pages load with no font downloads. To use a web font, load it as usual and point a token at it. <code>--s-font-body</code> sets the text, and <code>--s-font-heading</code> sets the headings (it follows the body font unless you set it).</p>
+<script type="text/plain" data-snippet="html"><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&display=swap">
+<style>
+  :root { --s-font-heading: "Fraunces", Georgia, serif; }
+</style></script>
+
+        <h3>Dark mode</h3>
+        <p>Dark mode is already on. Sumi follows the visitor's system setting. To force a mode, set <code>data-theme</code> on the <code>&lt;html&gt;</code> element:</p>
+<script type="text/plain" data-snippet="html"><html lang="en" data-theme="dark">   <!-- always dark -->
+<html lang="en" data-theme="light">  <!-- always light -->
+<html lang="en">                     <!-- follow the system (default) --></script>
+        <p>A theme switch is a few lines of JavaScript. This one remembers the visitor's choice:</p>
+<script type="text/plain" data-snippet="javascript">const root = document.documentElement;
+const saved = localStorage.getItem('theme');
+if (saved) root.dataset.theme = saved;
+
+document.querySelector('#theme-toggle').addEventListener('click', () => {
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const current = root.dataset.theme || (dark ? 'dark' : 'light');
+  const next = current === 'dark' ? 'light' : 'dark';
+  root.dataset.theme = next;
+  localStorage.setItem('theme', next);
+});</script>
+        <p><code>data-theme</code> also works on any element, so one section can be dark inside a light page:</p>
+        <div class="example">
+          <section data-theme="dark" style="padding: 1.5rem; border-radius: var(--s-radius); margin: 0">
+            <h4>Evening classes</h4>
+            <p>Thursdays from 19:00 to 21:00, by candlelight.</p>
+            <button type="button">Reserve</button>
+          </section>
+        </div>
+        <p class="note muted">The dark palette is defined twice in <code>sumi.css</code>: once for the system setting and once for <code>data-theme="dark"</code>. If you change dark colors, change both blocks.</p>
+      </section>
+
+      <!-- 10 -->
+      <section id="overrides">
+        <h2 class="step"><span class="n">10</span>Add your own CSS</h2>
+        <p>Most of Sumi's element styles sit inside <code>:where()</code>, which gives them zero specificity. Any selector you write wins, without <code>!important</code> and without long selector chains.</p>
+<script type="text/plain" data-snippet="css">/* Sumi: :where(blockquote) { border-left: 3px solid … } */
+
+/* Yours: a plain element selector is enough to win */
+blockquote {
+  border-left-color: var(--s-warning);
+}
+
+/* A new component, built from Sumi's tokens */
+.badge {
+  display: inline-block;
+  padding: .1em .55em;
+  border-radius: 999px;
+  background: var(--s-surface);
+  border: 1px solid var(--s-border);
+  font-size: .8rem;
+  color: var(--s-muted);
+}</script>
+        <p>Build new components from Sumi's tokens, as the badge above does. They then follow dark mode and your brand colors automatically. The tokens you'll use most are <code>--s-text</code>, <code>--s-muted</code>, <code>--s-bg</code>, <code>--s-surface</code>, <code>--s-border</code>, <code>--s-primary</code> and <code>--s-radius</code>.</p>
+        <p>To turn off a default for one element, override it with a class. For example, an <code>&lt;article&gt;</code> that should not be a card:</p>
+<script type="text/plain" data-snippet="css">article.plain {
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}</script>
+      </section>
+
+      <!-- finished -->
+      <section id="finished">
+        <h2 class="step"><span class="n">✓</span>The finished page</h2>
+        <p>Here are the pieces put together into one page. The full source is under the preview, ready to copy into <code>index.html</code>.</p>
+        <div class="example flush">
+          <div class="chrome" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="mini">
+            <header>
+              <nav>
+                <ul><li><strong>Inkwell Studio</strong></li></ul>
+                <ul>
+                  <li><a href="#finished" aria-current="page">Courses</a></li>
+                  <li><a href="#finished">FAQ</a></li>
+                  <li><a href="#finished" role="button" class="small">Book a seat</a></li>
+                </ul>
+              </nav>
+            </header>
+            <main>
+              <hgroup>
+                <h6>Calligraphy workshops</h6>
+                <h2>Learn to write with a brush</h2>
+              </hgroup>
+              <p class="lead">Small evening classes for complete beginners. Ink, brushes and paper are provided.</p>
+              <div class="grid cols-3">
+                <article>
+                  <header><strong>Taster evening</strong></header>
+                  <p>One two-hour session to try the basic strokes.</p>
+                  <footer><a href="#finished" role="button" class="secondary outline full">€35</a></footer>
+                </article>
+                <article>
+                  <header><strong>Six-week course</strong></header>
+                  <p>From first strokes to a finished hanging scroll.</p>
+                  <footer><a href="#finished" role="button" class="full">€180</a></footer>
+                </article>
+                <article>
+                  <header><strong>Private lesson</strong></header>
+                  <p>One hour with a teacher, when it suits you.</p>
+                  <footer><a href="#finished" role="button" class="secondary outline full">€60</a></footer>
+                </article>
+              </div>
+              <h3>Questions</h3>
+              <details>
+                <summary>Do I need any experience?</summary>
+                <p>No. Every course starts from the very first stroke.</p>
+              </details>
+              <details>
+                <summary>What should I wear?</summary>
+                <p>Something you don't mind getting ink on.</p>
+              </details>
+            </main>
+            <footer>© 2026 Inkwell Studio · Thursdays 19:00–21:00</footer>
+          </div>
+        </div>
+        <details>
+          <summary>Full source of index.html</summary>
+<script type="text/plain" data-snippet="html"><!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inkwell Studio</title>
+  <link rel="stylesheet" href="sumi.min.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <ul><li><strong>Inkwell Studio</strong></li></ul>
+      <ul>
+        <li><a href="#courses" aria-current="page">Courses</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#book" role="button" class="small">Book a seat</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <hgroup>
+      <h6>Calligraphy workshops</h6>
+      <h1>Learn to write with a brush</h1>
+    </hgroup>
+    <p class="lead">Small evening classes for complete beginners.
+      Ink, brushes and paper are provided.</p>
+
+    <section id="courses" class="grid cols-3">
+      <article>
+        <header><strong>Taster evening</strong></header>
+        <p>One two-hour session to try the basic strokes.</p>
+        <footer><a href="#book" role="button" class="secondary outline full">€35</a></footer>
+      </article>
+      <article>
+        <header><strong>Six-week course</strong></header>
+        <p>From first strokes to a finished hanging scroll.</p>
+        <footer><a href="#book" role="button" class="full">€180</a></footer>
+      </article>
+      <article>
+        <header><strong>Private lesson</strong></header>
+        <p>One hour with a teacher, when it suits you.</p>
+        <footer><a href="#book" role="button" class="secondary outline full">€60</a></footer>
+      </article>
+    </section>
+
+    <section id="book" class="narrow">
+      <h2>Book a seat</h2>
+      <form id="booking" novalidate>
+        <label>Name <input name="name" autocomplete="name" required></label>
+        <label>Email <input type="email" name="email" autocomplete="email" required></label>
+        <label>Course
+          <select name="course">
+            <option>Taster evening</option>
+            <option>Six-week course</option>
+            <option>Private lesson</option>
+          </select>
+        </label>
+        <button type="submit">Book my seat</button>
+      </form>
+    </section>
+
+    <section id="faq" class="narrow">
+      <h2>Questions</h2>
+      <details>
+        <summary>Do I need any experience?</summary>
+        <p>No. Every course starts from the very first stroke.</p>
+      </details>
+      <details>
+        <summary>What should I wear?</summary>
+        <p>Something you don't mind getting ink on.</p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 Inkwell Studio · Thursdays 19:00–21:00</p>
+  </footer>
+
+  <script>
+    const form = document.querySelector('#booking');
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      for (const field of form.querySelectorAll('input[required]')) {
+        field.setAttribute('aria-invalid', String(!field.checkValidity()));
+      }
+    });
+  <\/script>
+</body>
+</html></script>
+        </details>
+        <div class="finish">
+          <h3>Where to go next</h3>
+          <ul>
+            <li>Browse every component, with its HTML, on the <a href="docs.html">components page</a>.</li>
+            <li>Read the comments in <code>sumi.css</code>. Each section explains what it styles and which tokens it uses.</li>
+            <li>Change <code>--s-primary</code> and <code>--s-font-heading</code> first. Those two tokens change the character of a site the most.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- cheat sheet -->
+      <section id="cheatsheet">
+        <h2>Cheat sheet</h2>
+        <p>Every class and attribute Sumi responds to. Everything else is plain HTML.</p>
+        <div class="overflow-auto">
+          <table class="striped">
+            <thead><tr><th>Class or attribute</th><th>Goes on</th><th>Effect</th></tr></thead>
+            <tbody>
+              <tr><td><code>.container</code> <code>.container-fluid</code> <code>.narrow</code></td><td>any block</td><td>Centered page width, full width, reading width</td></tr>
+              <tr><td><code>.grid</code></td><td>wrapper</td><td>Auto-fitting columns, at least <code>--s-grid-min</code> wide</td></tr>
+              <tr><td><code>.cols-2</code> … <code>.cols-12</code></td><td><code>.grid</code></td><td>Fixed columns from 48rem up</td></tr>
+              <tr><td><code>.span-2</code> … <code>.span-9</code>, <code>.span-full</code></td><td>grid child</td><td>Spans several columns</td></tr>
+              <tr><td><code>.row</code> <code>.spread</code> <code>.stack</code></td><td>wrapper</td><td>Flex row, row with space between, vertical stack</td></tr>
+              <tr><td><code>.display</code> <code>.lead</code></td><td>heading, paragraph</td><td>Hero headline, intro paragraph</td></tr>
+              <tr><td><code>.prose</code> <code>.serif</code></td><td>text wrapper</td><td>Long-form reading column, serif typeface</td></tr>
+              <tr><td><code>.secondary</code> <code>.contrast</code> <code>.outline</code></td><td>button</td><td>Button colors and outline style</td></tr>
+              <tr><td><code>.small</code> <code>.large</code> <code>.full</code></td><td>button</td><td>Button sizes, full width</td></tr>
+              <tr><td><code>role="button"</code></td><td><code>&lt;a&gt;</code></td><td>Link that looks like a button</td></tr>
+              <tr><td><code>role="group"</code></td><td>wrapper</td><td>Joins buttons or input + button</td></tr>
+              <tr><td><code>role="switch"</code></td><td>checkbox</td><td>Toggle switch</td></tr>
+              <tr><td><code>aria-invalid</code></td><td>field</td><td>Red when <code>true</code>, green when <code>false</code></td></tr>
+              <tr><td><code>aria-busy="true"</code></td><td>any element</td><td>Loading spinner</td></tr>
+              <tr><td><code>aria-current="page"</code></td><td>nav link</td><td>Highlights the current page</td></tr>
+              <tr><td><code>data-tooltip</code> <code>data-placement</code></td><td>any element</td><td>Tooltip, above or below</td></tr>
+              <tr><td><code>data-theme</code></td><td><code>&lt;html&gt;</code> or any element</td><td>Forces <code>light</code> or <code>dark</code></td></tr>
+              <tr><td><code>.dropdown</code> <code>.right</code></td><td><code>&lt;details&gt;</code></td><td>Dropdown menu, right-aligned</td></tr>
+              <tr><td><code>.callout</code> + <code>.success</code> <code>.warning</code> <code>.danger</code></td><td>block</td><td>Message box</td></tr>
+              <tr><td><code>.striped</code></td><td><code>&lt;table&gt;</code></td><td>Zebra rows</td></tr>
+              <tr><td><code>.muted</code> <code>.small</code> <code>.center</code> <code>.sr-only</code> <code>.overflow-auto</code></td><td>any element</td><td>Utilities</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Browser support</h3>
+        <p>Sumi works in current versions of Chrome, Edge, Firefox and Safari. It relies on <code>:where()</code>, <code>:has()</code> and <code>color-mix()</code>, which are available from Chrome and Edge 111, Firefox 121 and Safari 16.2. Older browsers still show readable pages, with plainer hover and focus colors.</p>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="row spread">
+    <span>Sumi.css v1.0.0 · MIT License</span>
+    <a href="#top">Back to top</a>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+(function () {
+  var root = document.documentElement;
+
+  /* theme switch */
+  var themeBtns = document.querySelectorAll('[data-theme-set]');
+  function markTheme() {
+    var cur = root.getAttribute('data-theme') || 'auto';
+    themeBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.themeSet === cur)); });
+  }
+  themeBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.dataset.themeSet === 'auto') root.removeAttribute('data-theme');
+      else root.setAttribute('data-theme', b.dataset.themeSet);
+      markTheme();
+    });
+  });
+  markTheme();
+
+  function dedent(text) {
+    var lines = text.replace(/\t/g, '  ').split('\n');
+    while (lines.length && !lines[0].trim()) lines.shift();
+    while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+    var indent = Math.min.apply(null, lines.filter(function (l) { return l.trim(); }).map(function (l) { return l.match(/^ */)[0].length; }));
+    return lines.map(function (l) { return l.slice(indent); }).join('\n');
+  }
+
+  function codeBlock(src, lang) {
+    var wrap = document.createElement('div');
+    wrap.className = 'codeblock';
+    wrap.innerHTML = '<pre><code></code></pre><span class="lang"></span><button type="button" class="copy secondary outline small">Copy</button>';
+    var code = wrap.querySelector('code');
+    code.textContent = src;
+    code.className = 'language-' + (lang === 'javascript' ? 'javascript' : lang === 'css' ? 'css' : 'xml');
+    wrap.querySelector('.lang').textContent = lang === 'javascript' ? 'js' : lang;
+    var btn = wrap.querySelector('.copy');
+    btn.addEventListener('click', function () {
+      function done(t) { btn.textContent = t; setTimeout(function () { btn.textContent = 'Copy'; }, 1600); }
+      function fallback() {
+        var r = document.createRange(); r.selectNodeContents(code);
+        var sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+        done('Press Ctrl+C');
+      }
+      try { navigator.clipboard.writeText(src).then(function () { done('Copied'); }, fallback); } catch (e) { fallback(); }
+    });
+    if (window.hljs) { try { hljs.highlightElement(code); } catch (e) {} }
+    return wrap;
+  }
+
+  /* hand-written snippets */
+  document.querySelectorAll('script[data-snippet]').forEach(function (s) {
+    var src = dedent(s.textContent.replace(/<\\\//g, '</'));
+    s.replaceWith(codeBlock(src, s.dataset.snippet));
+  });
+
+  /* live examples: show their HTML above the result */
+  document.querySelectorAll('.example:not(.flush)').forEach(function (ex) {
+    var block = codeBlock(dedent(ex.innerHTML.replace(/ (open|checked|required|novalidate|disabled|selected)=""/g, ' $1')), 'html');
+    block.classList.add('pair');
+    ex.before(block);
+  });
+
+  /* example behaviour */
+  document.querySelectorAll('[data-open]').forEach(function (b) {
+    b.addEventListener('click', function () { document.getElementById(b.dataset.open).showModal(); });
+  });
+  var form = document.getElementById('booking');
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    form.querySelectorAll('input[required]').forEach(function (f) {
+      f.setAttribute('aria-invalid', String(!f.checkValidity()));
+    });
+  });
+  document.querySelectorAll('.example form:not([method="dialog"]), .mini form').forEach(function (f) {
+    f.addEventListener('submit', function (e) { e.preventDefault(); });
+  });
+
+  /* highlight the current step in the side index */
+  var links = {};
+  document.querySelectorAll('.tut aside a').forEach(function (a) { links[a.getAttribute('href').slice(1)] = a; });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          Object.keys(links).forEach(function (k) { links[k].removeAttribute('aria-current'); });
+          if (links[en.target.id]) links[en.target.id].setAttribute('aria-current', 'step');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    document.querySelectorAll('.content > section').forEach(function (s) { io.observe(s); });
+  }
+})();
+</script>
+
+</body>
+</html>

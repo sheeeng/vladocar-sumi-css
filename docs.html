@@ -1,0 +1,1616 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sumi.css</title>
+<meta name="description" content="Sumi.css: a minimalist, classless-first CSS framework.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@700;800&display=swap">
+<style id="sumi">
+/*!
+ * Sumi.css v1.0.0
+ * A minimalist, classless-first CSS framework.
+ * Write semantic HTML; reach for a class only when you need one.
+ * MIT License
+ */
+
+/* ==========================================================================
+   1. Design tokens
+   Override any of these on :root (or on any element) to theme Sumi.
+   ========================================================================== */
+
+:root,
+[data-theme="light"] {
+  --s-font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --s-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --s-font-serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, "Iowan Old Style", Georgia, serif;
+  --s-font-body: var(--s-font-sans);
+  --s-font-heading: var(--s-font-body);
+  --s-font-size: 100%;         /* base size; scales fluidly up to 106.25% on wide screens */
+  --s-line-height: 1.6;
+  --s-heading-weight: 700;
+  --s-measure: 68ch;           /* comfortable line length for .prose */
+  --s-flow: 1.25rem;           /* space after paragraphs, lists, quotes */
+
+  /* Fluid type scale: ratio 1.2 on phones, 1.28 on desktop */
+  --s-text-display: clamp(2.986rem, 2.433rem + 2.456vw, 4.398rem);
+  --s-text-h1: clamp(2.074rem, 1.835rem + 1.061vw, 2.684rem);
+  --s-text-h2: clamp(1.728rem, 1.584rem + .6417vw, 2.097rem);
+  --s-text-h3: clamp(1.44rem, 1.363rem + .3443vw, 1.638rem);
+  --s-text-h4: clamp(1.2rem, 1.169rem + .1391vw, 1.28rem);
+  --s-text-lead: clamp(1.125rem, 1.076rem + .2174vw, 1.25rem);
+
+  --s-space: 1rem;
+  --s-gutter: clamp(1rem, 4vw, 2rem);
+  --s-container: 72rem;
+  --s-narrow: 44rem;
+  --s-radius: .5rem;
+  --s-transition: .15s ease;
+
+  --s-bg: #ffffff;
+  --s-surface: #f6f7f9;
+  --s-card: #ffffff;
+  --s-card-section: #f8f9fb;
+  --s-text: #1b1f24;
+  --s-muted: #5d6673;
+  --s-border: #e2e5ea;
+  --s-border-strong: #c9ced6;
+
+  --s-primary: #2f5bea;
+  --s-on-primary: #ffffff;
+  --s-secondary: #5d6673;
+  --s-on-secondary: #ffffff;
+  --s-contrast: #1b1f24;
+  --s-on-contrast: #ffffff;
+  --s-success: #1a7f4b;
+  --s-warning: #a35f00;
+  --s-danger: #c62b39;
+
+  --s-code-bg: #f1f3f6;
+  --s-mark-bg: #fff1a6;
+  --s-mark-text: #1b1f24;
+  --s-mix: #000000; /* what hover states mix toward */
+  --s-focus: color-mix(in srgb, var(--s-primary) 30%, transparent);
+  --s-shadow: 0 1px 2px rgb(16 24 40 / .04), 0 4px 16px rgb(16 24 40 / .06);
+  --s-shadow-lg: 0 12px 40px rgb(16 24 40 / .18);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"],
+[data-theme="dark"] {
+  --s-bg: #0f1216;
+  --s-surface: #161a20;
+  --s-card: #161a20;
+  --s-card-section: #1b2027;
+  --s-text: #e5e8ec;
+  --s-muted: #9aa3af;
+  --s-border: #272d36;
+  --s-border-strong: #39414c;
+
+  --s-primary: #7593f8;
+  --s-on-primary: #0b0e13;
+  --s-secondary: #9aa3af;
+  --s-on-secondary: #0b0e13;
+  --s-contrast: #e5e8ec;
+  --s-on-contrast: #0f1216;
+  --s-success: #45c085;
+  --s-warning: #e3a43c;
+  --s-danger: #f0707b;
+
+  --s-code-bg: #1c2128;
+  --s-mark-bg: #5c4d00;
+  --s-mark-text: #fff6c8;
+  --s-mix: #ffffff;
+  --s-focus: color-mix(in srgb, var(--s-primary) 35%, transparent);
+  --s-shadow: 0 1px 2px rgb(0 0 0 / .3), 0 4px 16px rgb(0 0 0 / .25);
+  --s-shadow-lg: 0 12px 40px rgb(0 0 0 / .55);
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --s-bg: #0f1216;
+    --s-surface: #161a20;
+    --s-card: #161a20;
+    --s-card-section: #1b2027;
+    --s-text: #e5e8ec;
+    --s-muted: #9aa3af;
+    --s-border: #272d36;
+    --s-border-strong: #39414c;
+
+    --s-primary: #7593f8;
+    --s-on-primary: #0b0e13;
+    --s-secondary: #9aa3af;
+    --s-on-secondary: #0b0e13;
+    --s-contrast: #e5e8ec;
+    --s-on-contrast: #0f1216;
+    --s-success: #45c085;
+    --s-warning: #e3a43c;
+    --s-danger: #f0707b;
+
+    --s-code-bg: #1c2128;
+    --s-mark-bg: #5c4d00;
+    --s-mark-text: #fff6c8;
+    --s-mix: #ffffff;
+    --s-focus: color-mix(in srgb, var(--s-primary) 35%, transparent);
+  --s-focus: color-mix(in srgb, var(--s-primary) 35%, transparent);
+    --s-shadow: 0 1px 2px rgb(0 0 0 / .3), 0 4px 16px rgb(0 0 0 / .25);
+    --s-shadow-lg: 0 12px 40px rgb(0 0 0 / .55);
+
+    color-scheme: dark;
+  }
+}
+
+/* ==========================================================================
+   2. Base & reset
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  tab-size: 4;
+  font-family: var(--s-font-body);
+  /* 16px on phones, easing up to 17px on wide screens; respects user zoom */
+  font-size: clamp(var(--s-font-size), calc(var(--s-font-size) * .925 + .2vw), calc(var(--s-font-size) * 1.0625));
+  line-height: var(--s-line-height);
+  color: var(--s-text);
+  background: var(--s-bg);
+  font-kerning: normal;
+  font-optical-sizing: auto;
+  font-variant-ligatures: common-ligatures contextual;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: color-mix(in srgb, var(--s-primary) 28%, transparent); }
+
+body { margin: 0; min-height: 100vh; background: var(--s-bg); color: var(--s-text); }
+
+[data-theme]:not(:root) { color: var(--s-text); background-color: var(--s-bg); }
+
+:focus-visible { outline: 2px solid var(--s-primary); outline-offset: 2px; }
+
+[hidden] { display: none !important; }
+
+/* ==========================================================================
+   3. Page layout (classless)
+   body > header / main / footer are centred automatically.
+   ========================================================================== */
+
+:where(body > header, body > main, body > footer, .container) {
+  width: min(100% - 2 * var(--s-gutter), var(--s-container));
+  margin-inline: auto;
+}
+
+.container-fluid { width: auto; padding-inline: var(--s-gutter); }
+.narrow { max-width: var(--s-narrow); margin-inline: auto; }
+body > .narrow { width: min(100% - 2 * var(--s-gutter), var(--s-narrow)); }
+
+:where(body > header) { padding-block: 1.25rem; }
+:where(body > main) { padding-block: 2rem 3rem; }
+:where(body > footer) {
+  padding-block: 2rem;
+  border-top: 1px solid var(--s-border);
+  color: var(--s-muted);
+  font-size: .9rem;
+}
+
+:where(section) { margin-bottom: 3rem; }
+
+/* ==========================================================================
+   4. Typography
+   ========================================================================== */
+
+/* Vertical rhythm: text blocks share one spacing value (--s-flow) */
+:where(p, ul, ol, dl, blockquote, pre, figure, address) { margin: 0 0 var(--s-flow); }
+:where(table, form, fieldset, details, hr) { margin: 0 0 var(--s-space); }
+
+/* Headings: tighter leading and tracking as size grows,
+   more space above than below so each heading binds to its own text */
+:where(h1, h2, h3, h4, h5, h6) {
+  margin: 0 0 .5em;
+  font-family: var(--s-font-heading);
+  font-weight: var(--s-heading-weight);
+  color: var(--s-text);
+  text-wrap: balance;
+  font-variant-numeric: lining-nums;
+}
+:where(h1) { font-size: var(--s-text-h1); line-height: 1.1;  letter-spacing: -.028em; }
+:where(h2) { font-size: var(--s-text-h2); line-height: 1.15; letter-spacing: -.022em; margin-top: 2.4em; margin-bottom: .45em; }
+:where(h3) { font-size: var(--s-text-h3); line-height: 1.25; letter-spacing: -.016em; margin-top: 2em; }
+:where(h4) { font-size: var(--s-text-h4); line-height: 1.3;  letter-spacing: -.01em;  margin-top: 1.9em; }
+:where(h5) { font-size: 1rem;  line-height: 1.4; letter-spacing: -.005em; margin-top: 1.75em; }
+:where(h6) {
+  font-size: .8125rem;
+  line-height: 1.4;
+  font-weight: 650;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--s-muted);
+  margin-top: 2em;
+}
+:where(h1, h2, h3, h4, h5, h6):first-child,
+:where(h1, h2, h3, h4, h5, h6) + :where(h1, h2, h3, h4, h5, h6) { margin-top: 0; }
+:where(h1, h2, h3, h4, h5, h6) :where(a) { color: inherit; text-decoration-color: color-mix(in srgb, currentColor 30%, transparent); }
+:where(h1, h2, h3, h4, h5, h6)[id], :target { scroll-margin-top: 1.5rem; }
+
+/* Display headline for heroes: <h1 class="display"> */
+.display { font-size: var(--s-text-display); line-height: 1.02; letter-spacing: -.04em; font-weight: 800; }
+
+/* Lead paragraph: <p class="lead"> */
+.lead { font-size: var(--s-text-lead); line-height: 1.5; letter-spacing: -.005em; }
+
+:where(p) { text-wrap: pretty; }
+
+/* hgroup: heading + subtitle */
+:where(hgroup) { margin-bottom: var(--s-flow); }
+:where(hgroup) > * { margin-block: 0; }
+:where(hgroup) > :where(p) { margin-top: .4rem; color: var(--s-muted); font-size: 1.0625em; line-height: 1.45; }
+:where(hgroup) > :where(h6) + * { margin-top: .5rem; }
+
+:where(a) {
+  color: var(--s-primary);
+  text-decoration: underline;
+  text-decoration-thickness: from-font;
+  text-underline-offset: .18em;
+  text-decoration-skip-ink: auto;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  transition: color var(--s-transition), text-decoration-color var(--s-transition);
+}
+:where(a):hover { text-decoration-color: currentColor; }
+
+:where(b, strong) { font-weight: 650; }
+:where(h1, h2, h3, h4, h5, h6) :where(b, strong) { font-weight: inherit; }
+:where(em, i, cite) { font-style: italic; }
+:where(small) { font-size: .875em; }
+:where(mark) { padding: .05em .2em; border-radius: .2em; background: var(--s-mark-bg); color: var(--s-mark-text); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+:where(abbr[title]) { text-decoration: underline dotted color-mix(in srgb, currentColor 50%, transparent); text-underline-offset: .2em; cursor: help; }
+:where(ins) { color: var(--s-success); text-decoration: none; }
+:where(del) { color: var(--s-danger); }
+:where(sub, sup) { font-size: .72em; line-height: 0; position: relative; vertical-align: baseline; }
+:where(sub) { bottom: -.25em; }
+:where(sup) { top: -.5em; }
+:where(table, time, data, output) { font-variant-numeric: tabular-nums; }
+
+/* Lists */
+:where(ul, ol) { padding-left: 1.5em; }
+:where(li) + :where(li) { margin-top: .35em; }
+:where(li) > :where(ul, ol) { margin: .35em 0 0; }
+:where(li)::marker { color: var(--s-muted); }
+:where(ol) > :where(li)::marker { font-variant-numeric: tabular-nums; font-weight: 600; }
+:where(dl) > :where(dt) { font-weight: 650; }
+:where(dl) > :where(dt):not(:first-child) { margin-top: .75em; }
+:where(dd) { margin: .15em 0 0; color: var(--s-muted); }
+
+/* Quotes */
+:where(blockquote) {
+  margin-inline: 0;
+  padding: .1rem 0 .1rem 1.25rem;
+  border-left: 3px solid var(--s-primary);
+  font-size: 1.125rem;
+  line-height: 1.55;
+  letter-spacing: -.005em;
+  hanging-punctuation: first last;
+}
+:where(blockquote) > :last-child { margin-bottom: 0; }
+:where(blockquote) :where(footer, cite) { display: block; margin-top: .6rem; color: var(--s-muted); font-size: .875rem; font-style: normal; letter-spacing: 0; }
+:where(blockquote) :where(footer)::before { content: "\2014\2009"; }
+:where(q) { hanging-punctuation: first last; }
+
+:where(hr) { height: 0; border: 0; border-top: 1px solid var(--s-border); margin-block: 2.5rem; color: inherit; }
+
+/* Code */
+:where(code, kbd, samp, pre) { font-family: var(--s-font-mono); font-size: .875em; font-variant-ligatures: none; }
+:where(code, samp) { padding: .12em .38em; border-radius: .3em; background: var(--s-code-bg); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+:where(kbd) {
+  padding: .1em .45em;
+  border: 1px solid var(--s-border-strong);
+  border-bottom-width: 2px;
+  border-radius: .3em;
+  background: var(--s-surface);
+  font-size: .8em;
+}
+:where(pre) {
+  overflow-x: auto;
+  padding: 1rem 1.25rem;
+  border-radius: var(--s-radius);
+  background: var(--s-code-bg);
+  line-height: 1.6;
+  tab-size: 2;
+}
+:where(pre) > :where(code) { padding: 0; background: none; font-size: 1em; }
+
+:where(img, svg, video, canvas, audio, iframe) { vertical-align: middle; }
+:where(img, video) { max-width: 100%; height: auto; }
+:where(figure) { margin-inline: 0; }
+:where(figcaption) { margin-top: .6rem; color: var(--s-muted); font-size: .875rem; line-height: 1.45; }
+
+/* Serif reading mode: <body class="serif"> or on any element */
+.serif {
+  --s-font-body: var(--s-font-serif);
+  --s-font-heading: var(--s-font-serif);
+  font-family: var(--s-font-serif);
+}
+.serif :where(h1, h2, h3) { letter-spacing: -.012em; }
+.serif :where(blockquote) { font-style: italic; }
+
+/* Long-form text: <article class="prose"> or <div class="prose"> */
+.prose { max-width: var(--s-measure); font-size: 1.0625rem; line-height: 1.7; }
+.prose :where(p, li, dd, blockquote) { hyphens: auto; -webkit-hyphens: auto; hyphenate-limit-chars: 6 3 3; }
+.prose :where(h2) { margin-top: 2em; }
+.prose :where(figure, pre, table) { margin-block: 1.75rem; }
+.prose :where(img) { border-radius: var(--s-radius); }
+article.prose { padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; } /* a long-form article is not a card */
+
+/* ==========================================================================
+   5. Tables
+   ========================================================================== */
+
+:where(table) { width: 100%; border-collapse: collapse; border-spacing: 0; font-variant-numeric: tabular-nums; }
+:where(th, td) { padding: .625rem .75rem; border-bottom: 1px solid var(--s-border); text-align: start; vertical-align: top; }
+:where(thead th, thead td) { font-weight: 600; border-bottom: 2px solid var(--s-border-strong); }
+:where(tfoot th, tfoot td) { font-weight: 600; border-top: 2px solid var(--s-border-strong); border-bottom: 0; }
+:where(caption) { padding-bottom: .5rem; color: var(--s-muted); font-size: .875rem; text-align: start; }
+table.striped tbody tr:nth-child(odd) { background: var(--s-surface); }
+
+/* ==========================================================================
+   6. Buttons
+   Variants: .secondary .contrast .outline   Sizes: .small .large
+   ========================================================================== */
+
+:where(button, [type="button"], [type="submit"], [type="reset"], [role="button"]) {
+  --s-btn: var(--s-primary);
+  --s-btn-on: var(--s-on-primary);
+  --s-btn-hover: color-mix(in srgb, var(--s-btn) 85%, var(--s-mix));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5em;
+  margin: 0;
+  padding: .625rem 1.125rem;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--s-btn-on);
+  background: var(--s-btn);
+  border: 1px solid var(--s-btn);
+  border-radius: var(--s-radius);
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: background-color var(--s-transition), border-color var(--s-transition), color var(--s-transition), box-shadow var(--s-transition);
+}
+:where(button, [type="button"], [type="submit"], [type="reset"], [role="button"]):hover {
+  background: var(--s-btn-hover);
+  border-color: var(--s-btn-hover);
+}
+:where(button, [type="button"], [type="submit"], [type="reset"], [role="button"]):active { transform: translateY(1px); }
+
+.secondary { --s-btn: var(--s-secondary); --s-btn-on: var(--s-on-secondary); }
+.contrast { --s-btn: var(--s-contrast); --s-btn-on: var(--s-on-contrast); --s-btn-hover: color-mix(in srgb, var(--s-contrast) 82%, var(--s-bg)); }
+:is(button, [type="button"], [type="submit"], [type="reset"], [role="button"]).outline {
+  color: var(--s-btn);
+  background: transparent;
+  border-color: color-mix(in srgb, var(--s-btn) 55%, transparent);
+}
+:is(button, [type="button"], [type="submit"], [type="reset"], [role="button"]).outline:hover {
+  background: color-mix(in srgb, var(--s-btn) 10%, transparent);
+  border-color: var(--s-btn);
+}
+:is(button, [role="button"]).small { padding: .4rem .8rem; font-size: .875rem; }
+:is(button, [role="button"]).large { padding: .8rem 1.5rem; font-size: 1.1rem; }
+
+:where(button, [type="button"], [type="submit"], [type="reset"], [role="button"]):is(:disabled, [aria-disabled="true"]) {
+  opacity: .5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Button / input group */
+[role="group"] { display: inline-flex; vertical-align: middle; margin-bottom: var(--s-space); }
+[role="group"] > * { margin: 0 !important; border-radius: 0; }
+[role="group"] > * + * { margin-left: -1px !important; }
+[role="group"] > :first-child { border-radius: var(--s-radius) 0 0 var(--s-radius); }
+[role="group"] > :last-child { border-radius: 0 var(--s-radius) var(--s-radius) 0; }
+[role="group"] > :focus-visible { position: relative; z-index: 1; }
+[role="group"]:has(input, select) { display: flex; }
+[role="group"] > :is(input, select) { flex: 1; min-width: 0; }
+
+/* ==========================================================================
+   7. Forms
+   ========================================================================== */
+
+:where(label, legend) { display: block; margin-bottom: .375rem; font-weight: 500; }
+
+:where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="submit"], [type="button"], [type="reset"], [type="image"], [type="hidden"]), select, textarea) {
+  display: block;
+  width: 100%;
+  margin: 0 0 var(--s-space);
+  padding: .625rem .875rem;
+  font: inherit;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--s-text);
+  background-color: var(--s-bg);
+  border: 1px solid var(--s-border-strong);
+  border-radius: var(--s-radius);
+  outline: 2px solid transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color var(--s-transition), box-shadow var(--s-transition);
+}
+:where(label) > :where(input, select, textarea) { margin-top: .375rem; }
+:where(textarea) { min-height: 6.5rem; line-height: 1.5; resize: vertical; }
+::placeholder { color: var(--s-muted); opacity: .8; }
+
+:where(input, select, textarea):focus {
+  border-color: var(--s-primary);
+  box-shadow: 0 0 0 3px var(--s-focus);
+  outline: 2px solid transparent;
+}
+:where(input, select, textarea):disabled { opacity: .55; cursor: not-allowed; background-color: var(--s-surface); }
+:where(input, textarea)[readonly] { background-color: var(--s-surface); }
+
+[type="search"] { border-radius: 999px; padding-inline: 1.125rem; }
+
+/* select chevron drawn with gradients so it follows the theme */
+:where(select:not([multiple], [size])) {
+  padding-right: 2.5rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--s-muted) 50%),
+    linear-gradient(135deg, var(--s-muted) 50%, transparent 50%);
+  background-position: calc(100% - 1.15rem) 52%, calc(100% - .8rem) 52%;
+  background-size: .35rem .35rem;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+:where(select[multiple], select[size]) { padding: .375rem; }
+:where(select) option { padding: .25rem .5rem; }
+
+/* validation */
+[aria-invalid="true"] { border-color: var(--s-danger); }
+[aria-invalid="false"] { border-color: var(--s-success); }
+[aria-invalid="true"]:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--s-danger) 25%, transparent); }
+[aria-invalid="false"]:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--s-success) 25%, transparent); }
+
+/* helper text directly under a field */
+:where(input, select, textarea) + :where(small) {
+  display: block;
+  margin: calc(var(--s-space) * -.65) 0 var(--s-space);
+  color: var(--s-muted);
+}
+[aria-invalid="true"] + small { color: var(--s-danger); }
+[aria-invalid="false"] + small { color: var(--s-success); }
+
+:where(fieldset) { margin: 0 0 var(--s-space); padding: 0; border: 0; min-width: 0; }
+:where(legend) { padding: 0; font-weight: 600; }
+
+/* checkbox / radio rows */
+:where(label):has(> [type="checkbox"], > [type="radio"]) {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  width: fit-content;
+  margin-bottom: .5rem;
+  font-weight: 400;
+  cursor: pointer;
+}
+:where(fieldset) > :where(label):has(> [type="checkbox"], > [type="radio"]):last-child { margin-bottom: 0; }
+
+:where([type="checkbox"], [type="radio"]) {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-grid;
+  place-content: center;
+  flex-shrink: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  border: 1.5px solid var(--s-border-strong);
+  border-radius: .3rem;
+  background: var(--s-bg);
+  cursor: pointer;
+  vertical-align: middle;
+  transition: background-color var(--s-transition), border-color var(--s-transition), box-shadow var(--s-transition);
+}
+:where([type="radio"]) { border-radius: 50%; }
+:where([type="checkbox"], [type="radio"])::before {
+  content: "";
+  width: .65rem;
+  height: .65rem;
+  background: var(--s-on-primary);
+  transform: scale(0);
+  transition: transform .12s ease;
+}
+:where([type="checkbox"])::before { clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
+:where([type="radio"])::before { width: .45rem; height: .45rem; border-radius: 50%; }
+:where([type="checkbox"], [type="radio"]):is(:checked, :indeterminate) { background: var(--s-primary); border-color: var(--s-primary); }
+:where([type="checkbox"], [type="radio"]):is(:checked, :indeterminate)::before { transform: scale(1); }
+:where([type="checkbox"]):indeterminate::before { height: .15rem; clip-path: none; border-radius: 1px; }
+:where([type="checkbox"], [type="radio"]):focus-visible { outline: none; box-shadow: 0 0 0 3px var(--s-focus); }
+:where([type="checkbox"], [type="radio"]):disabled { opacity: .5; cursor: not-allowed; }
+:where([type="checkbox"], [type="radio"])[aria-invalid="true"] { border-color: var(--s-danger); }
+
+/* switch: <input type="checkbox" role="switch"> */
+[type="checkbox"][role="switch"] {
+  width: 2.25rem;
+  height: 1.3rem;
+  padding: 0 .15rem;
+  place-content: center start;
+  border: 0;
+  border-radius: 999px;
+  background: var(--s-border-strong);
+}
+[type="checkbox"][role="switch"]::before {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  clip-path: none;
+  background: #fff;
+  transform: none;
+  box-shadow: 0 1px 2px rgb(0 0 0 / .25);
+  transition: translate .18s ease;
+}
+[type="checkbox"][role="switch"]:checked { background: var(--s-primary); }
+[type="checkbox"][role="switch"]:checked::before { translate: .95rem 0; }
+
+/* range */
+:where([type="range"]) {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 1.25rem;
+  margin: .25rem 0 var(--s-space);
+  background: transparent;
+  cursor: pointer;
+}
+:where([type="range"])::-webkit-slider-runnable-track { height: .375rem; border-radius: 999px; background: var(--s-border); }
+:where([type="range"])::-moz-range-track { height: .375rem; border-radius: 999px; background: var(--s-border); }
+:where([type="range"])::-moz-range-progress { height: .375rem; border-radius: 999px; background: var(--s-primary); }
+:where([type="range"])::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: -.39rem;
+  border: 2px solid var(--s-bg);
+  border-radius: 50%;
+  background: var(--s-primary);
+  box-shadow: 0 0 0 1px var(--s-primary);
+  transition: box-shadow var(--s-transition);
+}
+:where([type="range"])::-moz-range-thumb {
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 2px solid var(--s-bg);
+  border-radius: 50%;
+  background: var(--s-primary);
+  box-shadow: 0 0 0 1px var(--s-primary);
+}
+:where([type="range"]):focus-visible { outline: none; }
+:where([type="range"]):focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 1px var(--s-primary), 0 0 0 5px var(--s-focus); }
+:where([type="range"]):focus-visible::-moz-range-thumb { box-shadow: 0 0 0 1px var(--s-primary), 0 0 0 5px var(--s-focus); }
+
+/* file */
+:where([type="file"]) { display: block; width: 100%; margin: 0 0 var(--s-space); font: inherit; color: var(--s-muted); }
+:where(label) > :where([type="file"], [type="color"]) { margin-top: .375rem; }
+::file-selector-button {
+  margin-right: .875rem;
+  padding: .5rem .9rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--s-text);
+  background: var(--s-surface);
+  border: 1px solid var(--s-border-strong);
+  border-radius: var(--s-radius);
+  cursor: pointer;
+  transition: background-color var(--s-transition);
+}
+::file-selector-button:hover { background: var(--s-border); }
+
+/* color */
+:where([type="color"]) {
+  display: block;
+  width: 3rem;
+  margin: 0 0 var(--s-space);
+  height: 2.5rem;
+  padding: .2rem;
+  border: 1px solid var(--s-border-strong);
+  border-radius: var(--s-radius);
+  background: var(--s-bg);
+  cursor: pointer;
+}
+:where([type="color"])::-webkit-color-swatch-wrapper { padding: 0; }
+:where([type="color"])::-webkit-color-swatch { border: 0; border-radius: calc(var(--s-radius) - .2rem); }
+:where([type="color"])::-moz-color-swatch { border: 0; border-radius: calc(var(--s-radius) - .2rem); }
+
+::-webkit-calendar-picker-indicator { opacity: .6; cursor: pointer; }
+
+/* progress */
+:where(progress) {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: .5rem;
+  margin: 0 0 var(--s-space);
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: var(--s-border);
+  color: var(--s-primary);
+}
+:where(progress)::-webkit-progress-bar { background: var(--s-border); }
+:where(progress)::-webkit-progress-value { background: var(--s-primary); border-radius: 999px; transition: width .3s ease; }
+:where(progress)::-moz-progress-bar { background: var(--s-primary); border-radius: 999px; }
+:where(progress):indeterminate {
+  background: var(--s-border) linear-gradient(90deg, transparent, var(--s-primary) 30%, var(--s-primary) 70%, transparent) no-repeat;
+  background-size: 35% 100%;
+  animation: s-indeterminate 1.2s ease-in-out infinite;
+}
+:where(progress):indeterminate::-webkit-progress-bar { background: transparent; }
+:where(progress):indeterminate::-moz-progress-bar { background: transparent; }
+
+:where(meter) { width: 100%; height: .75rem; }
+
+/* ==========================================================================
+   8. Components
+   ========================================================================== */
+
+/* --- Navigation --- */
+:where(nav) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem 1.5rem;
+}
+:where(nav) :where(ul) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .25rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+:where(nav) :where(li) { margin: 0; }
+:where(nav) :where(a):not([role="button"]) { color: var(--s-text); text-decoration: none; }
+:where(nav) :where(a):not([role="button"]):hover,
+:where(nav) [aria-current]:not([aria-current="false"]) { color: var(--s-primary); }
+:where(nav) [aria-current]:not([aria-current="false"]) { font-weight: 600; }
+
+nav[aria-label="breadcrumb"] ul { gap: .5rem; }
+nav[aria-label="breadcrumb"] li:not(:last-child)::after { content: "/"; margin-left: .5rem; color: var(--s-muted); }
+nav[aria-label="breadcrumb"] li:last-child { color: var(--s-muted); }
+
+:where(aside) :where(nav) { display: block; }
+:where(aside) :where(nav ul) { flex-direction: column; align-items: stretch; gap: .125rem; }
+:where(aside) :where(nav a) { display: block; padding: .375rem .75rem; border-radius: var(--s-radius); }
+:where(aside) :where(nav) [aria-current]:not([aria-current="false"]) { background: color-mix(in srgb, var(--s-primary) 10%, transparent); }
+
+/* --- Card: <article> --- */
+:where(article) {
+  margin: 0 0 calc(var(--s-space) * 1.5);
+  padding: 1.5rem;
+  background: var(--s-card);
+  border: 1px solid var(--s-border);
+  border-radius: calc(var(--s-radius) * 1.5);
+  box-shadow: var(--s-shadow);
+}
+:where(article) > :where(header, footer) {
+  margin-inline: -1.5rem;
+  padding: 1rem 1.5rem;
+  background: var(--s-card-section);
+}
+:where(article) > :where(header) {
+  margin-top: -1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--s-border);
+  border-radius: calc(var(--s-radius) * 1.5) calc(var(--s-radius) * 1.5) 0 0;
+}
+:where(article) > :where(footer) {
+  margin-top: 1.5rem;
+  margin-bottom: -1.5rem;
+  border-top: 1px solid var(--s-border);
+  border-radius: 0 0 calc(var(--s-radius) * 1.5) calc(var(--s-radius) * 1.5);
+}
+:where(article) > :where(header, footer) > :last-child,
+:where(article) > :last-child { margin-bottom: 0; }
+:where(article) > :where(footer):last-child { margin-bottom: -1.5rem; }
+/* cards in a grid: equal heights, footers aligned at the bottom */
+:where(.grid) > :where(article) { display: flex; flex-direction: column; }
+:where(.grid) > :where(article) > :where(footer) { margin-top: auto; }
+:where(.grid) > :where(article) > :not(header):has(+ footer:last-child) { margin-bottom: 1.5rem; }
+
+/* --- Accordion: <details> --- */
+:where(details) { border-bottom: 1px solid var(--s-border); }
+:where(details) > :where(summary) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .875rem 0;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+:where(details) > :where(summary)::-webkit-details-marker { display: none; }
+:where(details) > :where(summary)::after {
+  content: "";
+  flex-shrink: 0;
+  width: .5rem;
+  height: .5rem;
+  margin-right: .25rem;
+  border-right: 2px solid var(--s-muted);
+  border-bottom: 2px solid var(--s-muted);
+  transform: translateY(-25%) rotate(45deg);
+  transition: transform .2s ease;
+}
+:where(details[open]) > :where(summary)::after { transform: translateY(25%) rotate(-135deg); }
+:where(details[open]) > :where(summary) { margin-bottom: .25rem; }
+:where(details[open]) { padding-bottom: .5rem; }
+:where(details) > :where(summary):focus-visible { outline-offset: 4px; border-radius: .25rem; }
+
+/* --- Dropdown: <details class="dropdown"> --- */
+details.dropdown { position: relative; display: inline-block; border: 0; padding: 0; margin-bottom: var(--s-space); }
+details.dropdown > summary {
+  padding: .625rem .875rem;
+  margin: 0;
+  font-weight: 500;
+  border: 1px solid var(--s-border-strong);
+  border-radius: var(--s-radius);
+  background: var(--s-bg);
+}
+details.dropdown > summary::after { width: .4rem; height: .4rem; }
+details.dropdown[open] > summary { border-color: var(--s-primary); box-shadow: 0 0 0 3px var(--s-focus); }
+details.dropdown > :is(ul, div) {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + .375rem);
+  left: 0;
+  min-width: 100%;
+  width: max-content;
+  max-width: 18rem;
+  margin: 0;
+  padding: .3rem;
+  list-style: none;
+  background: var(--s-card);
+  border: 1px solid var(--s-border);
+  border-radius: var(--s-radius);
+  box-shadow: var(--s-shadow-lg);
+  animation: s-pop .14s ease;
+}
+details.dropdown > ul > li { margin: 0; }
+details.dropdown > ul a {
+  display: block;
+  padding: .45rem .75rem;
+  border-radius: calc(var(--s-radius) - .15rem);
+  color: var(--s-text);
+  text-decoration: none;
+}
+details.dropdown > ul a:hover { background: var(--s-surface); }
+details.dropdown > ul hr { margin: .3rem 0; }
+:where(nav) details.dropdown { margin: 0; }
+:where(nav) details.dropdown > summary { border: 0; padding: .25rem 0; background: none; box-shadow: none; }
+details.dropdown.right > :is(ul, div) { left: auto; right: 0; }
+
+/* --- Modal: <dialog> --- */
+:where(dialog) {
+  width: min(100% - 2rem, 34rem);
+  max-height: calc(100vh - 4rem);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--s-text);
+  overflow: visible;
+}
+:where(dialog) > :where(article) { margin: 0; box-shadow: var(--s-shadow-lg); max-height: calc(100vh - 4rem); overflow: auto; }
+:where(dialog)[open] { animation: s-pop .2s ease; }
+:where(dialog)::backdrop { background: rgb(10 12 16 / .5); backdrop-filter: blur(3px); }
+:where(dialog) :where(header) :where(h1, h2, h3, h4) { margin: 0; }
+:where(dialog) :where(footer) { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
+
+/* --- Callout --- */
+.callout {
+  --s-callout: var(--s-primary);
+  margin: 0 0 var(--s-space);
+  padding: .875rem 1.125rem;
+  border: 1px solid color-mix(in srgb, var(--s-callout) 30%, transparent);
+  border-left: 4px solid var(--s-callout);
+  border-radius: var(--s-radius);
+  background: color-mix(in srgb, var(--s-callout) 8%, var(--s-bg));
+}
+.callout > :last-child { margin-bottom: 0; }
+.callout.success { --s-callout: var(--s-success); }
+.callout.warning { --s-callout: var(--s-warning); }
+.callout.danger { --s-callout: var(--s-danger); }
+
+/* --- Tooltip: data-tooltip="..." --- */
+[data-tooltip] { position: relative; }
+[data-tooltip]:not(button, [role="button"]) { border-bottom: 1px dotted var(--s-muted); cursor: help; }
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  z-index: 60;
+  bottom: 100%;
+  left: 50%;
+  width: max-content;
+  max-width: 16rem;
+  padding: .35rem .6rem;
+  border-radius: calc(var(--s-radius) - .1rem);
+  background: var(--s-contrast);
+  color: var(--s-on-contrast);
+  font-size: .8rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: center;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -.25rem);
+  transition: opacity .15s ease, transform .15s ease;
+}
+[data-tooltip][data-placement="bottom"]::after { bottom: auto; top: 100%; transform: translate(-50%, .25rem); }
+[data-tooltip]:is(:hover, :focus-visible)::after { opacity: 1; transform: translate(-50%, -.5rem); }
+[data-tooltip][data-placement="bottom"]:is(:hover, :focus-visible)::after { transform: translate(-50%, .5rem); }
+
+/* --- Loading: aria-busy="true" --- */
+[aria-busy="true"]:not(input, select, textarea)::before {
+  content: "";
+  display: inline-block;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  border: .15em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  vertical-align: -.15em;
+  animation: s-spin .7s linear infinite;
+}
+[aria-busy="true"]:not(button, [role="button"], input, select, textarea):not(:empty)::before { margin-right: .5em; }
+:is(button, [role="button"])[aria-busy="true"] { pointer-events: none; }
+
+/* ==========================================================================
+   9. Layout helpers
+   ========================================================================== */
+
+/* Auto-fitting grid: columns wrap below --s-grid-min */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--s-grid-min, 14rem), 100%), 1fr));
+  gap: var(--s-grid-gap, var(--s-space));
+  margin-bottom: var(--s-space);
+}
+.grid > * { min-width: 0; }
+.grid > :where(article, input, select, textarea, label, fieldset) { margin-bottom: 0; }
+
+/* Fixed column counts from 48rem up, single column below */
+@media (min-width: 48rem) {
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .grid.cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .grid.cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .span-2 { grid-column: span 2; }
+  .span-3 { grid-column: span 3; }
+  .span-4 { grid-column: span 4; }
+  .span-6 { grid-column: span 6; }
+  .span-8 { grid-column: span 8; }
+  .span-9 { grid-column: span 9; }
+}
+@media (max-width: 47.99rem) {
+  .grid:is(.cols-2, .cols-3, .cols-4, .cols-6, .cols-12) { grid-template-columns: 1fr; }
+}
+.span-full { grid-column: 1 / -1; }
+
+/* Flex helpers */
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-row-gap, .75rem); }
+.row > * { margin-bottom: 0; }
+.spread { justify-content: space-between; }
+.stack { display: flex; flex-direction: column; gap: var(--s-stack-gap, var(--s-space)); }
+.stack > * { margin: 0; }
+
+/* ==========================================================================
+   10. Utilities (kept deliberately small)
+   ========================================================================== */
+
+.muted { color: var(--s-muted); }
+.small { font-size: .875rem; }
+.center { text-align: center; }
+.full { width: 100%; }
+.overflow-auto { overflow: auto; }
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================================================
+   11. Motion
+   ========================================================================== */
+
+@keyframes s-spin { to { transform: rotate(360deg); } }
+@keyframes s-pop { from { opacity: 0; transform: translateY(.375rem) scale(.98); } }
+@keyframes s-indeterminate { from { background-position: -50% 0; } to { background-position: 150% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   12. Print
+   ========================================================================== */
+
+@media print {
+  :root { --s-bg: #fff; --s-text: #000; --s-card: #fff; color-scheme: light; }
+  :where(article) { box-shadow: none; break-inside: avoid; }
+  :where(a[href^="http"])::after { content: " (" attr(href) ")"; font-size: .8em; color: #555; }
+  :where(nav, dialog, button) { display: none !important; }
+}
+
+</style>
+<style>
+/* Docs page only. Layout: sticky section index on the left, live demos on the right. Every color comes from Sumi's own tokens. */
+:root {
+  --s-gutter: 0px;
+  --d-display: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+}
+body {
+  background: var(--s-bg);
+  color: var(--s-text);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body > header { border-bottom: 1px solid var(--s-border); margin-bottom: 0; }
+.brand { font-family: var(--d-display); font-size: 1.35rem; font-weight: 800; letter-spacing: -.01em; }
+.brand span { color: var(--s-muted); font-family: var(--s-font-sans); font-size: .95rem; font-weight: 500; }
+.theme-switch { margin: 0; }
+.theme-switch button { padding: .3rem .65rem; font-size: .8rem; font-weight: 500; }
+.theme-switch .outline[aria-pressed="true"], .theme-switch .outline[aria-pressed="true"]:hover { background: var(--s-btn); color: var(--s-btn-on); border-color: var(--s-btn); }
+
+/* hero */
+.hero { padding-block: 3.5rem 2.5rem; border-bottom: 1px solid var(--s-border); margin-bottom: 2.5rem; }
+.hero .grid { align-items: center; gap: 2.5rem; }
+.wordmark {
+  margin: 0 0 .75rem;
+  font-family: var(--d-display);
+  font-size: clamp(3.5rem, 2.5rem + 5vw, 6rem);
+  font-weight: 800;
+  line-height: .95;
+  letter-spacing: -.035em;
+}
+.wordmark small { font-family: var(--s-font-sans); font-size: .3em; font-weight: 500; letter-spacing: 0; color: var(--s-muted); vertical-align: .9em; margin-left: .15em; }
+.lede { max-width: 34rem; }
+.specs { display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; margin: 1.5rem 0 0; padding: 0; list-style: none; font-family: var(--s-font-mono); font-size: .8rem; color: var(--s-muted); }
+.specs li { margin: 0; }
+.specs b { color: var(--s-text); font-weight: 600; }
+.hero pre { margin: 0; font-size: .85rem; }
+#css-fallback { font-family: var(--s-font-mono); font-size: .75rem; min-height: 8rem; }
+
+/* docs layout */
+.docs { display: grid; gap: 3rem; }
+.docs > * { min-width: 0; }
+.docs aside { display: none; }
+@media (min-width: 64rem) {
+  .docs { grid-template-columns: 11rem minmax(0, 1fr); }
+  .docs aside { display: block; }
+  .docs aside nav { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 1.5rem); }
+}
+.docs aside h6 { margin: 0 0 .5rem .75rem; }
+.docs aside a { font-size: .9rem; }
+
+.docs section { scroll-margin-top: 1.5rem; }
+.docs section > h2 { display: flex; align-items: baseline; gap: .6rem; }
+.docs section > h2 code { font-size: .55em; font-weight: 500; color: var(--s-muted); background: none; padding: 0; }
+.intro { max-width: 42rem; color: var(--s-muted); }
+
+.demo {
+  padding: 1.5rem;
+  border: 1px solid var(--s-border);
+  border-radius: calc(var(--s-radius) * 1.5) calc(var(--s-radius) * 1.5) 0 0;
+  background: var(--s-bg);
+}
+.demo > :last-child { margin-bottom: 0; }
+.demo + .code {
+  margin: 0 0 2rem;
+  padding: 0;
+  border: 1px solid var(--s-border);
+  border-top: 0;
+  border-radius: 0 0 calc(var(--s-radius) * 1.5) calc(var(--s-radius) * 1.5);
+  background: var(--s-surface);
+}
+.demo + .code > summary { padding: .55rem 1rem; font-size: .8rem; font-weight: 500; color: var(--s-muted); }
+.demo + .code[open] { padding-bottom: 0; }
+.demo + .code pre { margin: 0; border-radius: 0 0 calc(var(--s-radius) * 1.5) calc(var(--s-radius) * 1.5); border-top: 1px solid var(--s-border); max-height: 26rem; font-size: .8rem; }
+.label { margin: 0 0 .5rem; font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--s-muted); }
+
+.swatch { display: inline-block; width: .85rem; height: .85rem; border-radius: .2rem; vertical-align: -.1rem; margin-right: .4rem; border: 1px solid var(--s-border-strong); }
+.token-table td:first-child { white-space: nowrap; }
+.layout-demo .grid > div { padding: .75rem; border-radius: var(--s-radius); background: color-mix(in srgb, var(--s-primary) 12%, var(--s-bg)); border: 1px solid color-mix(in srgb, var(--s-primary) 30%, transparent); font-family: var(--s-font-mono); font-size: .8rem; text-align: center; }
+/* type scale specimen */
+.scale-row { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 1.25rem; align-items: baseline; padding-block: .9rem; border-bottom: 1px solid var(--s-border); }
+.scale-row:first-child { padding-top: 0; }
+.scale-row:last-child { padding-bottom: 0; border-bottom: 0; }
+.scale-row > :last-child { margin: 0; overflow-wrap: anywhere; }
+.scale-meta { font-family: var(--s-font-mono); font-size: .75rem; line-height: 1.5; color: var(--s-muted); font-variant-numeric: tabular-nums; }
+.scale-meta b { color: var(--s-text); font-weight: 600; }
+@media (max-width: 40rem) { .scale-row { grid-template-columns: 1fr; gap: .2rem; } }
+.prose-bar { margin: 2.5rem 0 .75rem; }
+.prose-bar .label { margin: 0; }
+.prose-bar .label code { font-size: .9em; text-transform: none; letter-spacing: 0; }
+.font-switch { margin: 0; }
+.font-switch button { padding: .3rem .7rem; font-size: .8rem; font-weight: 500; }
+.font-switch button code { background: none; padding: 0; font-size: .9em; opacity: .7; }
+.font-switch .outline[aria-pressed="true"], .font-switch .outline[aria-pressed="true"]:hover { background: var(--s-btn); color: var(--s-btn-on); border-color: var(--s-btn); }
+</style>
+
+</head>
+<body>
+<header id="top">
+  <nav>
+    <ul>
+      <li><a href="#top" class="brand">Sumi <span>.css</span></a></li>
+    </ul>
+    <ul>
+      <li><a href="tutorial.html">Tutorial</a></li>
+      <li><a href="#start">Start</a></li>
+      <li><a href="#buttons">Components</a></li>
+      <li><a href="#theming">Theming</a></li>
+      <li>
+        <div role="group" aria-label="Color theme" class="theme-switch">
+          <button type="button" class="secondary outline small" data-theme-set="auto" aria-pressed="true">Auto</button>
+          <button type="button" class="secondary outline small" data-theme-set="light" aria-pressed="false">Light</button>
+          <button type="button" class="secondary outline small" data-theme-set="dark" aria-pressed="false">Dark</button>
+        </div>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <div class="hero" id="start">
+    <div class="grid cols-2">
+      <div>
+        <h1 class="wordmark">Sumi<small>v1.0</small></h1>
+        <p class="lead lede">A minimalist CSS framework. Write plain, semantic HTML and it looks finished. Add a class only when you want something specific.</p>
+        <div class="row">
+          <button type="button" id="copy-css">Copy sumi.css</button>
+          <a href="#theming" role="button" class="secondary outline">Customize tokens</a>
+        </div>
+        <textarea id="css-fallback" readonly hidden aria-label="Full sumi.css source"></textarea>
+        <ul class="specs">
+          <li><b>6.7 KB</b> gzipped</li>
+          <li><b>0</b> JavaScript</li>
+          <li><b>0</b> dependencies</li>
+          <li><b>auto</b> light + dark</li>
+        </ul>
+      </div>
+      <div>
+        <p class="label">Quick start</p>
+<pre><code>&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+  &lt;link rel="stylesheet" href="sumi.min.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;header&gt;&lt;nav&gt;…&lt;/nav&gt;&lt;/header&gt;
+  &lt;main&gt;
+    &lt;h1&gt;Hello, ink.&lt;/h1&gt;
+  &lt;/main&gt;
+  &lt;footer&gt;…&lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        <p class="small muted" style="margin-top:.75rem">Direct children <code>header</code>, <code>main</code> and <code>footer</code> of <code>body</code> center themselves. Need the same width elsewhere? Use <code>.container</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="docs">
+    <aside>
+      <nav aria-label="Sections">
+        <h6>Contents</h6>
+        <ul>
+          <li><a href="#typography">Typography</a></li>
+          <li><a href="#buttons">Buttons</a></li>
+          <li><a href="#forms">Forms</a></li>
+          <li><a href="#tables">Tables</a></li>
+          <li><a href="#cards">Cards</a></li>
+          <li><a href="#disclosure">Accordion &amp; dropdown</a></li>
+          <li><a href="#modal">Modal</a></li>
+          <li><a href="#feedback">Feedback</a></li>
+          <li><a href="#layout">Layout</a></li>
+          <li><a href="#theming">Theming</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div>
+      <!-- Typography -->
+      <section id="typography">
+        <h2>Typography <code>classless</code></h2>
+        <p class="intro">A fluid type scale grows from a 1.2 ratio on phones to 1.28 on desktop. Leading and letter-spacing tighten as headings get larger, headings sit closer to the text they introduce, and paragraphs, lists and quotes share one spacing rhythm.</p>
+
+        <p class="label">Type scale <span class="muted">· resize the window to watch it flex</span></p>
+        <div class="demo" data-nocode>
+          <div class="scale-row"><span class="scale-meta"><b>.display</b><br><span data-px></span></span><p class="display">Sumi</p></div>
+          <div class="scale-row"><span class="scale-meta"><b>h1</b><br><span data-px></span></span><h1>Grinding the ink</h1></div>
+          <div class="scale-row"><span class="scale-meta"><b>h2</b><br><span data-px></span></span><h2>Choosing an inkstone</h2></div>
+          <div class="scale-row"><span class="scale-meta"><b>h3</b><br><span data-px></span></span><h3>Water, stick and stone</h3></div>
+          <div class="scale-row"><span class="scale-meta"><b>h4</b><br><span data-px></span></span><h4>Holding the brush upright</h4></div>
+          <div class="scale-row"><span class="scale-meta"><b>h5</b><br><span data-px></span></span><h5>Loading the brush</h5></div>
+          <div class="scale-row"><span class="scale-meta"><b>h6</b><br><span data-px></span></span><h6>Lesson three</h6></div>
+          <div class="scale-row"><span class="scale-meta"><b>.lead</b><br><span data-px></span></span><p class="lead">A short course in the black ink that East Asian painters have used for two thousand years.</p></div>
+          <div class="scale-row"><span class="scale-meta"><b>p</b><br><span data-px></span></span><p>Grind slowly in small circles. The ink is ready when it coats the stone like thin oil.</p></div>
+          <div class="scale-row"><span class="scale-meta"><b>small</b><br><span data-px></span></span><p><small>Workshop materials are included in the course fee.</small></p></div>
+        </div>
+
+        <div class="row spread prose-bar">
+          <p class="label">Long-form text <code>.prose</code></p>
+          <div role="group" aria-label="Typeface" class="font-switch">
+            <button type="button" class="secondary outline small" data-font-set="sans" aria-pressed="true">Sans</button>
+            <button type="button" class="secondary outline small" data-font-set="serif" aria-pressed="false">Serif <code>.serif</code></button>
+          </div>
+        </div>
+        <div class="demo">
+          <article class="prose" id="prose-demo">
+            <hgroup>
+              <h6>Lesson three</h6>
+              <h3>Grinding the ink</h3>
+              <p>Notes from a beginners’ calligraphy workshop</p>
+            </hgroup>
+            <p class="lead">Sumi is the carbon ink of East Asian brush painting: soot bound with animal glue and pressed into a stick.</p>
+            <p>You grind the stick against an inkstone with a few drops of water, and <strong>the longer you grind</strong>, the deeper the black. Thin, watered washes are called <em>usuzumi</em>. A well-kept stick can be <mark>decades old</mark>, and many painters say old ink flows more smoothly than new.</p>
+            <h4>What you need</h4>
+            <ul>
+              <li>An inkstick (<abbr title="Japanese: ink">sumi</abbr>)</li>
+              <li>An inkstone (suzuri)
+                <ul><li>a flat end for grinding</li><li>a deep well for holding ink</li></ul>
+              </li>
+              <li>A brush, a water dropper and a paper weight</li>
+            </ul>
+            <blockquote>
+              <p>One stroke, one breath. You cannot go back over a line.</p>
+              <footer>Workshop rule no. 1</footer>
+            </blockquote>
+            <h4>Step by step</h4>
+            <ol>
+              <li>Put three drops of water on the flat of the stone.</li>
+              <li>Grind in small circles for about five minutes.</li>
+              <li>Push the ink into the well and repeat until it is full.</li>
+            </ol>
+            <p>Taking notes digitally? Press <kbd>Ctrl</kbd> + <kbd>S</kbd> often, mark terms with <code>&lt;dfn&gt;</code>, and write H<sub>2</sub>O and 10<sup>3</sup> inline.</p>
+            <dl>
+              <dt>Usuzumi</dt><dd>Diluted, grey ink for soft tones and mist.</dd>
+              <dt>Nōboku</dt><dd>Dense, glossy black for strong, confident lines.</dd>
+            </dl>
+          </article>
+        </div>
+      </section>
+
+      <!-- Buttons -->
+      <section id="buttons">
+        <h2>Buttons <code>.secondary .contrast .outline</code></h2>
+        <p class="intro"><code>&lt;button&gt;</code>, submit inputs and <code>&lt;a role="button"&gt;</code> all share one style. Three color variants, an outline modifier and two sizes.</p>
+        <div class="demo">
+          <div class="row">
+            <button>Primary</button>
+            <button class="secondary">Secondary</button>
+            <button class="contrast">Contrast</button>
+            <a href="#buttons" role="button">Link button</a>
+          </div>
+          <br>
+          <div class="row">
+            <button class="outline">Primary</button>
+            <button class="secondary outline">Secondary</button>
+            <button class="contrast outline">Contrast</button>
+            <button disabled>Disabled</button>
+          </div>
+          <br>
+          <div class="row">
+            <button class="small">Small</button>
+            <button>Default</button>
+            <button class="large">Large</button>
+            <button aria-busy="true">Saving</button>
+            <button class="secondary outline" data-tooltip="Tooltips need no JavaScript">Hover me</button>
+          </div>
+          <br>
+          <div role="group">
+            <button class="secondary outline">Day</button>
+            <button class="secondary outline">Week</button>
+            <button class="secondary outline">Month</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Forms -->
+      <section id="forms">
+        <h2>Forms <code>classless</code></h2>
+        <p class="intro">Wrap a field in its label or pair it with <code>for</code>. Put a <code>&lt;small&gt;</code> right after a field for helper text, and set <code>aria-invalid</code> to show validation.</p>
+        <div class="demo">
+          <form>
+            <div class="grid">
+              <label>Full name
+                <input name="name" autocomplete="name" placeholder="Hana Sato">
+              </label>
+              <label>Email
+                <input type="email" name="email" autocomplete="email" value="hana@example" aria-invalid="true">
+              </label>
+            </div>
+            <small class="muted" style="display:block;margin:-.5rem 0 1rem">The email above is marked invalid with <code>aria-invalid="true"</code>.</small>
+
+            <label for="f-user">Username</label>
+            <input id="f-user" name="user" value="hana_s" aria-invalid="false" aria-describedby="f-user-help">
+            <small id="f-user-help">Nice, that username is free.</small>
+
+            <div class="grid">
+              <label>Paper
+                <select name="paper">
+                  <option>Hanshi, 24 × 33 cm</option>
+                  <option>Gasenshi, 35 × 135 cm</option>
+                  <option>Torinoko, 61 × 91 cm</option>
+                </select>
+              </label>
+              <label>Workshop date
+                <input type="date" name="date" value="2026-11-14">
+              </label>
+            </div>
+
+            <label>Notes
+              <textarea name="notes" placeholder="Anything we should know?"></textarea>
+            </label>
+
+            <div class="grid">
+              <fieldset>
+                <legend>Level</legend>
+                <label><input type="radio" name="level" checked> Beginner</label>
+                <label><input type="radio" name="level"> Intermediate</label>
+                <label><input type="radio" name="level" disabled> Master (full)</label>
+              </fieldset>
+              <fieldset>
+                <legend>Bring</legend>
+                <label><input type="checkbox" checked> Own brush</label>
+                <label><input type="checkbox" class="js-indeterminate"> Inkstone (partial set)</label>
+                <label><input type="checkbox"> Felt mat</label>
+              </fieldset>
+              <fieldset>
+                <legend>Notifications</legend>
+                <label><input type="checkbox" role="switch" checked> Email reminders</label>
+                <label><input type="checkbox" role="switch"> SMS</label>
+              </fieldset>
+            </div>
+
+            <label>Ink density <input type="range" name="density" min="0" max="100" value="65"></label>
+
+            <div class="grid">
+              <label>Upload a sample <input type="file" name="sample"></label>
+              <label>Accent color <input type="color" name="color" value="#2f5bea"></label>
+            </div>
+
+            <div role="group">
+              <input type="search" name="q" placeholder="Search workshops" aria-label="Search workshops">
+              <button type="submit">Search</button>
+            </div>
+
+            <div class="row">
+              <button type="submit">Book seat</button>
+              <button type="reset" class="secondary outline">Clear</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Tables -->
+      <section id="tables">
+        <h2>Tables <code>.striped</code></h2>
+        <p class="intro">Plain tables get clean rules and tabular numbers. Wrap wide tables in <code>.overflow-auto</code> so they scroll on phones.</p>
+        <div class="demo">
+          <div class="overflow-auto">
+            <table class="striped">
+              <caption>What Sumi styles without a single class</caption>
+              <thead>
+                <tr><th>Element</th><th>You get</th><th>Optional class</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>&lt;article&gt;</code></td><td>Card with header and footer bands</td><td>—</td></tr>
+                <tr><td><code>&lt;details&gt;</code></td><td>Accordion with animated chevron</td><td><code>.dropdown</code></td></tr>
+                <tr><td><code>&lt;dialog&gt;</code></td><td>Modal with blurred backdrop</td><td>—</td></tr>
+                <tr><td><code>&lt;nav&gt;</code></td><td>Horizontal menu, vertical inside <code>&lt;aside&gt;</code></td><td>—</td></tr>
+                <tr><td><code>&lt;progress&gt;</code></td><td>Determinate and indeterminate bars</td><td>—</td></tr>
+                <tr><td><code>&lt;input role="switch"&gt;</code></td><td>Toggle switch</td><td>—</td></tr>
+              </tbody>
+              <tfoot>
+                <tr><td>Total</td><td>Every common element</td><td>4 optional modifiers</td></tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cards -->
+      <section id="cards">
+        <h2>Cards <code>&lt;article&gt;</code></h2>
+        <p class="intro">An <code>&lt;article&gt;</code> is a card. Its direct <code>&lt;header&gt;</code> and <code>&lt;footer&gt;</code> become full-bleed bands.</p>
+        <div class="demo">
+          <div class="grid cols-3">
+            <article>
+              <header><strong>Taster</strong></header>
+              <p>A single two-hour evening session. Ink, brush and paper provided.</p>
+              <footer><a href="#cards" role="button" class="secondary outline full">€35 · Book</a></footer>
+            </article>
+            <article>
+              <header><strong>Course</strong></header>
+              <p>Six weekly sessions from basic strokes to a finished hanging scroll.</p>
+              <footer><a href="#cards" role="button" class="full">€180 · Book</a></footer>
+            </article>
+            <article>
+              <h4>Plain card</h4>
+              <p>No header or footer needed. Any content works inside an article.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Disclosure -->
+      <section id="disclosure">
+        <h2>Accordion &amp; dropdown <code>&lt;details&gt;</code></h2>
+        <p class="intro">Native <code>&lt;details&gt;</code> elements give you an accordion. Add <code>class="dropdown"</code> for a menu, and <code>.right</code> to align it to the right edge.</p>
+        <div class="demo">
+          <details open>
+            <summary>What should I wear?</summary>
+            <p>Something you don't mind getting ink on. Sumi does not wash out of cotton.</p>
+          </details>
+          <details>
+            <summary>Can I bring my own materials?</summary>
+            <p>Yes. Bring your brush and inkstick if you have favorites. We supply everything else.</p>
+          </details>
+          <details>
+            <summary>Is there a beginner group?</summary>
+            <p>Every Tuesday. No experience needed.</p>
+          </details>
+          <br>
+          <details class="dropdown">
+            <summary>Export as…</summary>
+            <ul>
+              <li><a href="#disclosure">PNG image</a></li>
+              <li><a href="#disclosure">SVG vector</a></li>
+              <li><hr></li>
+              <li><a href="#disclosure">Print sheet</a></li>
+            </ul>
+          </details>
+        </div>
+      </section>
+
+      <!-- Modal -->
+      <section id="modal">
+        <h2>Modal <code>&lt;dialog&gt;</code></h2>
+        <p class="intro">Put an <code>&lt;article&gt;</code> inside a <code>&lt;dialog&gt;</code>. Open it with <code>dialog.showModal()</code>; a <code>&lt;form method="dialog"&gt;</code> closes it with no script at all.</p>
+        <div class="demo">
+          <button data-open="demo-modal">Open modal</button>
+          <dialog id="demo-modal">
+            <article>
+              <header><h3>Cancel your booking?</h3></header>
+              <p>Your seat for the Saturday workshop will be released and offered to the waiting list.</p>
+              <footer>
+                <form method="dialog" class="row">
+                  <button class="secondary outline" value="keep">Keep booking</button>
+                  <button class="contrast" value="cancel">Cancel booking</button>
+                </form>
+              </footer>
+            </article>
+          </dialog>
+        </div>
+      </section>
+
+      <!-- Feedback -->
+      <section id="feedback">
+        <h2>Feedback <code>.callout progress aria-busy</code></h2>
+        <p class="intro">Callouts for messages, native progress bars, and a spinner on anything with <code>aria-busy="true"</code>.</p>
+        <div class="demo">
+          <div class="callout"><strong>Tip:</strong> Grind the ink in small circles for about five minutes.</div>
+          <div class="callout success">Booking confirmed. See you on Saturday.</div>
+          <div class="callout warning">Only two seats left for this date.</div>
+          <div class="callout danger">Payment failed. Check your card details and try again.</div>
+          <p class="label">Upload, 62%</p>
+          <progress value="62" max="100"></progress>
+          <p class="label">Processing</p>
+          <progress></progress>
+          <p aria-busy="true">Loading your gallery…</p>
+        </div>
+      </section>
+
+      <!-- Layout -->
+      <section id="layout">
+        <h2>Layout <code>.grid .row .stack</code></h2>
+        <p class="intro"><code>.grid</code> fits as many columns as there is room for. Add <code>.cols-2</code> to <code>.cols-12</code> for fixed columns from tablet width up, and <code>.span-*</code> on children. <code>.row</code> and <code>.stack</code> are flex helpers.</p>
+        <div class="demo layout-demo">
+          <p class="label">.grid (auto-fit)</p>
+          <div class="grid"><div>1</div><div>2</div><div>3</div><div>4</div></div>
+          <p class="label">.grid.cols-12 with spans</p>
+          <div class="grid cols-12"><div class="span-8">.span-8</div><div class="span-4">.span-4</div><div class="span-3">.span-3</div><div class="span-9">.span-9</div></div>
+          <p class="label">.row.spread</p>
+          <div class="row spread"><div>left</div><div>right</div></div>
+        </div>
+      </section>
+
+      <!-- Theming -->
+      <section id="theming">
+        <h2>Theming <code>--s-*</code></h2>
+        <p class="intro">Everything reads from CSS custom properties. Override them on <code>:root</code>, or on any element to theme just that part. Set <code>data-theme="light"</code> or <code>"dark"</code> to force a mode; without it Sumi follows the system setting. Try it live:</p>
+        <div class="demo" data-nocode>
+          <div class="grid">
+            <label>Primary color <input type="color" id="tk-primary" value="#2f5bea"></label>
+            <label>Corner radius <output id="tk-radius-out" class="muted small">0.5rem</output>
+              <input type="range" id="tk-radius" min="0" max="1.25" step="0.125" value="0.5">
+            </label>
+            <label>Base size <output id="tk-size-out" class="muted small">100%</output>
+              <input type="range" id="tk-size" min="90" max="115" step="1" value="100">
+            </label>
+          </div>
+          <div class="row">
+            <button type="button" id="tk-reset" class="secondary outline">Reset tokens</button>
+            <span class="small muted">Changes apply to this whole page, in both themes.</span>
+          </div>
+        </div>
+        <details class="code" open>
+          <summary>Your overrides</summary>
+<pre><code id="tk-css">:root {
+  --s-primary: #2f5bea;
+  --s-radius: .5rem;
+}</code></pre>
+        </details>
+
+        <h3>Core tokens</h3>
+        <div class="overflow-auto">
+          <table class="token-table">
+            <thead><tr><th>Token</th><th>Controls</th></tr></thead>
+            <tbody>
+              <tr><td><span class="swatch" style="background:var(--s-primary)"></span><code>--s-primary</code></td><td>Buttons, links, focus rings, checked controls</td></tr>
+              <tr><td><span class="swatch" style="background:var(--s-bg)"></span><code>--s-bg</code></td><td>Page and field background</td></tr>
+              <tr><td><span class="swatch" style="background:var(--s-surface)"></span><code>--s-surface</code></td><td>Stripes, code blocks, readonly fields</td></tr>
+              <tr><td><span class="swatch" style="background:var(--s-text)"></span><code>--s-text</code></td><td>Body text</td></tr>
+              <tr><td><span class="swatch" style="background:var(--s-muted)"></span><code>--s-muted</code></td><td>Captions, helper text, markers</td></tr>
+              <tr><td><span class="swatch" style="background:var(--s-border)"></span><code>--s-border</code></td><td>Rules, table lines, card edges</td></tr>
+              <tr><td><code>--s-radius</code></td><td>Corner rounding everywhere</td></tr>
+              <tr><td><code>--s-font-sans</code> / <code>--s-font-mono</code></td><td>Text and code typefaces</td></tr>
+              <tr><td><code>--s-container</code> / <code>--s-narrow</code></td><td>Page width (72rem) and reading width (44rem)</td></tr>
+              <tr><td><code>--s-grid-min</code></td><td>Minimum column width for <code>.grid</code> (14rem)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="row spread">
+    <span>Sumi.css v1.0.0 · MIT License</span>
+    <span>Inspired by Pico.css, MVP.css and Pure.</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+
+  /* theme switch */
+  var themeBtns = document.querySelectorAll('[data-theme-set]');
+  function markTheme() {
+    var cur = root.getAttribute('data-theme') || 'auto';
+    themeBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.themeSet === cur)); });
+  }
+  themeBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.dataset.themeSet === 'auto') root.removeAttribute('data-theme');
+      else root.setAttribute('data-theme', b.dataset.themeSet);
+      markTheme();
+    });
+  });
+  markTheme();
+
+  /* type scale: print live px sizes */
+  function measure() {
+    document.querySelectorAll('[data-px]').forEach(function (m) {
+      var sample = m.closest('.scale-row').lastElementChild;
+      var target = sample.querySelector('small') || sample;
+      m.textContent = (Math.round(parseFloat(getComputedStyle(target).fontSize) * 10) / 10) + 'px';
+    });
+  }
+  measure();
+  window.addEventListener('resize', measure);
+
+  /* sans / serif switch for the prose demo */
+  var fontBtns = document.querySelectorAll('[data-font-set]');
+  fontBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.getElementById('prose-demo').classList.toggle('serif', b.dataset.fontSet === 'serif');
+      fontBtns.forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+    });
+  });
+
+  /* show the HTML behind each demo */
+  document.querySelectorAll('.demo:not([data-nocode])').forEach(function (demo) {
+    var lines = demo.innerHTML.replace(/\s+aria-pressed="[^"]*"/g, '').split('\n');
+    while (lines.length && !lines[0].trim()) lines.shift();
+    while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+    var indent = Math.min.apply(null, lines.filter(function (l) { return l.trim(); }).map(function (l) { return l.match(/^ */)[0].length; }));
+    var src = lines.map(function (l) { return l.slice(indent); }).join('\n');
+    var d = document.createElement('details');
+    d.className = 'code';
+    d.innerHTML = '<summary>HTML</summary><pre><code></code></pre>';
+    d.querySelector('code').textContent = src;
+    demo.after(d);
+  });
+
+  /* demo behaviour */
+  document.querySelectorAll('.js-indeterminate').forEach(function (c) { c.indeterminate = true; });
+  document.querySelectorAll('.demo form').forEach(function (f) {
+    if (f.method !== 'dialog') f.addEventListener('submit', function (e) { e.preventDefault(); });
+  });
+  document.querySelectorAll('[data-open]').forEach(function (b) {
+    b.addEventListener('click', function () { document.getElementById(b.dataset.open).showModal(); });
+  });
+
+  /* copy css */
+  var copyBtn = document.getElementById('copy-css');
+  var css = document.getElementById('sumi').textContent.trim() + '\n';
+  copyBtn.addEventListener('click', function () {
+    function done(msg) { copyBtn.textContent = msg; setTimeout(function () { copyBtn.textContent = 'Copy sumi.css'; }, 1800); }
+    function fallback() {
+      var ta = document.getElementById('css-fallback');
+      ta.hidden = false; ta.value = css; ta.focus(); ta.select();
+      done('Selected, press Ctrl+C');
+    }
+    try {
+      navigator.clipboard.writeText(css).then(function () { done('Copied'); }, fallback);
+    } catch (e) { fallback(); }
+  });
+
+  /* live tokens */
+  var pr = document.getElementById('tk-primary'), rd = document.getElementById('tk-radius'), sz = document.getElementById('tk-size');
+  var out = document.getElementById('tk-css');
+  function applyTokens() {
+    var r = (+rd.value).toString().replace(/^0\./, '.') + 'rem';
+    root.style.setProperty('--s-primary', pr.value);
+    root.style.setProperty('--s-radius', r);
+    root.style.setProperty('--s-font-size', sz.value + '%');
+    document.getElementById('tk-radius-out').textContent = r;
+    document.getElementById('tk-size-out').textContent = sz.value + '%';
+    measure();
+    out.textContent = ':root {\n  --s-primary: ' + pr.value + ';\n  --s-radius: ' + r + ';\n  --s-font-size: ' + sz.value + '%;\n}';
+  }
+  [pr, rd, sz].forEach(function (el) { el.addEventListener('input', applyTokens); });
+  document.getElementById('tk-reset').addEventListener('click', function () {
+    ['--s-primary', '--s-radius', '--s-font-size'].forEach(function (p) { root.style.removeProperty(p); });
+    pr.value = '#2f5bea'; rd.value = '0.5'; sz.value = '100';
+    document.getElementById('tk-radius-out').textContent = '.5rem';
+    document.getElementById('tk-size-out').textContent = '100%';
+    measure();
+    out.textContent = ':root {\n  --s-primary: #2f5bea;\n  --s-radius: .5rem;\n}';
+  });
+})();
+</script>
+
+</body>
+</html>
